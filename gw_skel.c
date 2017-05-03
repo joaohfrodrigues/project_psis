@@ -58,8 +58,8 @@ int main(int argc, char *argv[]){
   printf("Bind completed\n");
 
 	while(1) {
-		//recvfrom(s, &m, sizeof(m), 0,(struct sockaddr *) &src_addr, &src_addr_size);
-		recv(s, &m, sizeof(m), 0);
+		recvfrom(s, &m, sizeof(m), 0,(struct sockaddr *) &src_addr, &src_addr_size);
+		//recv(s, &m, sizeof(m), 0);
 		printf("received\n");
 
 		if(m.type==GW_SERVER){
