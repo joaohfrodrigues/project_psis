@@ -12,6 +12,8 @@
 
 #include "image_server.h"
 
+int s, s_dgram;
+
 void terminate_ok(int n){
 	int in;
 	printf("received signal %d, do you want to exit? (0/1)", n);
@@ -24,21 +26,51 @@ void terminate_ok(int n){
 	}
 }
 
-int main(){
+int main(int argc, char *argv[]){
 
-  message m;
+  message m, gateway_message;
   char client_addr_id[20];
   char * story;
   story = strdup("");
-  int s;
-  struct sockaddr_in server_addr, client_addr;
-  socklen_t server_addr_size, client_addr_size;
+
+  struct sockaddr_in server_addr, client_addr, gateway_addr;
+  socklen_t server_addr_size, client_addr_size, gateway_addr_size;
 
   /*signal handling*/
   signal(SIGINT, terminate_ok);
 
   sprintf(client_addr_id, "sock_cli_%d", getpid());
-  /* create socket  */
+  
+  /* create socket with gateway */
+  s_dgram= socket(AF_INET,SOCK_DGRAM,0);
+  if(s_dgram == -1)
+  {
+    perror("Socket with gateway not created.Error:");
+    return 1;
+  }
+  printf("Socket gateway created\n");
+
+  gateway_addr.sin_family = AF_INET;
+  gateway_addr.sin_port = htons(3000); /*numero de porto*/
+  inet_aton(argv[1], &gateway_addr.sin_addr);
+
+  gateway_message.type=CLIENT_GW;
+  gateway_message.port=client_addr.sin_port;
+
+  /*ask gateway for server to connect*/
+  gateway_addr_size=sizeof(gateway_addr);
+  printf("message type %d\n", gateway_message.type);
+  int bits = sendto(s_dgram, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) gateway_addr_size);
+
+  printf("sent%d bits to gateway\n", bits);
+
+  /*receive answer from gateway*/
+  bits = recvfrom(s_dgram, &m, sizeof(m), 0,(struct sockaddr *) &gateway_addr, &gateway_addr_size);
+  
+  printf("received %d bits from gateway\n", bits);
+
+
+  /*create socket with server*/
   s= socket(AF_INET,SOCK_STREAM,0);
   if(s == -1)
   {
@@ -46,8 +78,8 @@ int main(){
     return 1;
   }
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(3000); /*numero de porto*/
-  server_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
+  server_addr.sin_port = m.port; /*numero de porto*/
+  inet_aton(m.address, &server_addr.sin_addr); /*IP*/ /*fazer inet_ntoa na gateway do server e guardar no buffer!*/
 
   printf("Socket created\n");
 

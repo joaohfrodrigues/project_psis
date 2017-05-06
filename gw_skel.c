@@ -27,10 +27,13 @@ void terminate_ok(int n){
 
 int main(int argc, char *argv[]){
 
-  message m;
+  message m, m_client;
   char client_addr_id[20];
   struct sockaddr_in gw_addr, src_addr;
   socklen_t gw_addr_size, src_addr_size;
+
+  struct sockaddr_in server_addr, client_addr;
+  socklen_t server_addr_size, client_addr_size;
 
   /*signal handling*/
   signal(SIGINT, terminate_ok);
@@ -64,8 +67,29 @@ int main(int argc, char *argv[]){
 
 		if(m.type==GW_SERVER){
 			printf("server connecting\n");
+      server_addr.sin_family = AF_INET;
+      server_addr.sin_port = src_addr.sin_port;
+      server_addr.sin_addr = src_addr.sin_addr;
+      server_addr_size = src_addr_size;
+
 		}else if(m.type==CLIENT_GW){
-			printf("client_connecting\n");
+			printf("client connecting\n");
+      client_addr.sin_family = AF_INET;
+      client_addr.sin_port = src_addr.sin_port;
+      client_addr.sin_addr = src_addr.sin_addr;
+      client_addr_size = src_addr_size;
+
+      /*if(server_addr.sin_family!=AF_INET){/* ver outra condição de teste: ver se lista está vazia*/
+          m_client.type = CLIENT_GW;
+          m_client.port = server_addr.sin_port;
+          m_client.address = inet_ntoa(server_addr.sin_addr);
+
+          printf("message type %d\n", m_client.type);
+          int bits=sendto(s, (const void *) &m_client, (size_t) sizeof(m_client), 0,(const struct sockaddr *) &client_addr, (socklen_t) client_addr_size);
+
+          printf("sent%d bits to client\n", bits);
+      //}
+
 		}
 	}
 

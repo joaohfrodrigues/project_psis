@@ -9,6 +9,7 @@ typedef struct message{
     int type;
     char buffer[MESSAGE_LEN];
     int port;
+    char * address;
 } message;
 
 typedef struct photo{
