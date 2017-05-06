@@ -140,13 +140,13 @@ Item findItemLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) 
   LinkedList *aux;
 
   if(head == NULL)
-    return item;
+    return NULL;
 
   for(aux = head; aux != NULL; aux = aux->next)
     if((* comparisonItemFnt)(aux->this, item))
       return (aux->this);
 
-  return item;
+  return NULL;
 }
 
 /*
@@ -161,11 +161,14 @@ Item *findItemVectorLinkedList(LinkedList * head, Item item, int (* comparisonIt
   LinkedList *aux;
 
   if(head == NULL)
-    return item;
+    return NULL;
 
   for(aux = head; aux != NULL; aux = aux->next)
     if((* comparisonItemFnt)(aux->this, item))
       (*count)++;
+
+  if((*count)==0)
+    return NULL;
 
   Item *vector=calloc((*count),sizeof(Item));
 

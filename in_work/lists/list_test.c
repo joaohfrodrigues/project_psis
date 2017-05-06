@@ -33,8 +33,8 @@ int compare_keywords(Item foto1, Item foto2){
 }
 
 /*DETERMINES THE ID OF A PHOTO*/ /*NEEDS IMPROVEMENT*/
-int getphotoid(char * name){
-  int id=0;
+uint32_t getphotoid(char * name){
+  uint32_t id=0;
   int i;
 
   for(i=0; i<=strlen(name);i++){
@@ -112,23 +112,34 @@ photo_processed=(photo*) findItemLinkedList(server_list, (Item) photo3, &compare
 printf("\nUsed findItem with id3, found photo_name=%s; photo_id=%d\n", photo_processed->name, photo_processed->id);
 
 
+keyword_item->id=photo5->id +1;
+printf("changed\n");
+photo_processed=(photo*) findItemLinkedList(server_list, (Item) keyword_item, &compare_id);
+
+if(photo_processed==NULL)
+  printf("nothing found for id=%d\n", keyword_item->id);
+else
+  printf("\nUsed findItem with id5, found photo_name=%s; photo_id=%d\n", photo_processed->name, photo_processed->id);
+
 /*LOOK FOR ITEM WITH KEYWORD AND CHANGE IT*/
 //photo_processed=(photo*) findItemLinkedList(server_list, (Item) photo5, &compare_id);
 //printf("\nUsed findItem with id5, found photo_name=%s; photo_id=%d\n", photo_processed->name, photo_processed->id);
 //strcpy(photo_processed->keyword[0], "nature");
 
 /*ADD A KEYWORD*/
-photo_processed=(photo*) findItemLinkedList(server_list, (Item) photo5, &compare_id);
-printf("\nUsed findItem with id5, found photo_name=%s; photo_id=%d\n", photo_processed->name, photo_processed->id);
-strcpy(photo_processed->keyword[1], "nature");
+strcpy(photo5->keyword[1], "nature");
 /*number of photos in the vector*/
 int count=0;
 photo ** vector= (photo **) findItemVectorLinkedList(server_list, (Item) keyword_item, &compare_keywords, &count);
-printf("\nUsed findvectorItem with keyword %s, found:\n",keyword_item->keyword[0]);
-for(int i=0; i<count; i++)
-  printf("photo_name=%s; photo_id=%d\n", vector[i]->name, vector[i]->id);
-free(vector);
 
+if(vector==NULL)
+  printf("nothing found for keyword %s\n", keyword_item->keyword[0]);
+else{
+  printf("\nUsed findvectorItem with keyword %s, found:\n",keyword_item->keyword[0]);
+  for(int i=0; i<count; i++)
+    printf("photo_name=%s; photo_id=%d\n", vector[i]->name, vector[i]->id);
+  free(vector);
+}
 
 freeLinkedList(server_list, &free_photo);
 
