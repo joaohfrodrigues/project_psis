@@ -13,30 +13,38 @@
 #include "image_server.h"
 #include "library.h"
 
-int s, s_dgram;
+int peer_socket;
+
+/*HANDLING SIGNALS*/
+void terminate_ok(int n){
+	printf("terminating client...\n");
+  close(peer_socket);
+	exit(-1);
+}
 
 int main(int argc, char *argv[]){
+	message m;
 
-  message m, gateway_message;
-  char client_addr_id[20];
+  /*signal handling*/
+  signal(SIGINT, terminate_ok);
 
-  struct sockaddr_in server_addr, client_addr, gateway_addr;
-  socklen_t server_addr_size, client_addr_size, gateway_addr_size;
+	peer_socket=gallery_connect(argv[1], 3000);
 
-
-  sprintf(client_addr_id, "sock_cli_%d", getpid());
-
-  s=gallery_connect(argv[1], 3000);
-
-  printf("message: ");
-  fgets(m.buffer, MESSAGE_LEN, stdin);
-
-  /* write message */
-  send(s, &m, sizeof(m), 0);
-  printf("OK\n");
-
-  close(s);
-  //unlink(client_addr_id);
+	if(peer_socket==-1){
+		printf("error connecting to the gateway\n");
+		exit(0);
+	}else if(peer_socket==0){
+		printf("no peers available\n");
+		exit(0);
+	}
+	
+	while(1){
+		printf("message: ");
+	  //fgets(m.buffer, MESSAGE_LEN, stdin);
+		scanf("%s", m.buffer);
+	  /* write message */
+	  send(peer_socket, &m, sizeof(m), 0);
+	}
+  close(peer_socket);
   exit(0);
-
 }

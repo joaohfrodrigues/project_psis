@@ -4,6 +4,8 @@
 #define GW_SERVER 0
 #define CLIENT_GW 1
 #define CLIENT_SERVER 2
+#define CLIENT_DEATH 10
+#define SERVER_DEATH 20
 
 typedef struct message{
     int type;

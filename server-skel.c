@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <pthread.h>
 
 #include "image_server.h"
 
@@ -31,12 +32,23 @@ void terminate_ok(int n){
 	//}
 }
 
+void *handle_client(void *arg){
+  while(1){
+    message m;
+    /*receive message*/
+    recv(new_s, &m, sizeof(m), 0);
+    /* process message */
+    printf("%s\n", m.buffer);
+  }
+}
+
 int main(int argc, char *argv[]){
 
-  message m, gateway_message;
+  message gateway_message;
   struct sockaddr_in server_addr, client_addr, gateway_addr;
   socklen_t server_addr_size, client_addr_size, gateway_addr_size;
-
+  pthread_t thrd_client;
+  int error;
   /*signal handling*/
   signal(SIGINT, terminate_ok);
 
@@ -71,11 +83,8 @@ int main(int argc, char *argv[]){
   gateway_message.port=server_addr.sin_port;
 
   gateway_addr_size=sizeof(gateway_addr);
-  printf("message type %d\n", gateway_message.type);
   printf("server_port=%d\n", server_addr.sin_port);
-  int bits=sendto(s_gw, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) gateway_addr_size);
-
-  printf("sent%d bits\n", bits);
+  sendto(s_gw, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) gateway_addr_size);
 
     /*bind the socket server-client*/
     if(bind(s_server,(const struct sockaddr*)&server_addr,sizeof(server_addr)) == -1)
@@ -94,10 +103,11 @@ int main(int argc, char *argv[]){
     while(1){
       new_s= accept(s_server,NULL, NULL);
       perror("accept");
-      /*receive message*/
-      recv(new_s, &m, sizeof(m), 0);
-      /* process message */
-      printf("%s\n", m.buffer);
+      error = pthread_create(&thrd_client, NULL,handle_client, NULL);
+    	if(error != 0){
+    		perror("pthread_create: ");
+    		exit(-1);
+    	}
     }
     printf("OK\n");
     exit(0);

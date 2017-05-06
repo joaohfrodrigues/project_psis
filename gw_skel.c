@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
   char client_addr_id[20];
   struct sockaddr_in gw_addr, src_addr;
   socklen_t gw_addr_size, src_addr_size;
-	int server_port;
+	int server_port=0;
   struct sockaddr_in server_addr, client_addr;
   socklen_t server_addr_size, client_addr_size;
 
@@ -66,33 +66,23 @@ int main(int argc, char *argv[]){
 		printf("received\n");
 
 		if(m.type==GW_SERVER){
-			printf("server connecting\n");
       server_addr.sin_family = AF_INET;
       server_addr.sin_port = src_addr.sin_port;
       server_addr.sin_addr = src_addr.sin_addr;
       server_addr_size = src_addr_size;
 			server_port=m.port;
-
+			strcpy(m.buffer, inet_ntoa(server_addr.sin_addr));
+			printf("server connecting	server_port=%d	server_ip=%s\n", m.port, m.buffer);
 		}else if(m.type==CLIENT_GW){
-			printf("client connecting\n");
       client_addr.sin_family = AF_INET;
       client_addr.sin_port = src_addr.sin_port;
       client_addr.sin_addr = src_addr.sin_addr;
       client_addr_size = src_addr_size;
-
-      /*if(server_addr.sin_family!=AF_INET){/* ver outra condição de teste: ver se lista está vazia*/
-					//inet_aton(argv[1], server_addr.sin_addr);
-					printf("server_port=%d\n", server_port);
-					m_client.type = CLIENT_GW;
-          m_client.port = server_port;
-          strcpy(m_client.buffer, inet_ntoa(server_addr.sin_addr));
-
-          printf("message type %d\n", m_client.type);
-          int bits=sendto(s, (const void *) &m_client, (size_t) sizeof(m_client), 0,(const struct sockaddr *) &client_addr, (socklen_t) sizeof(client_addr));
-
-          printf("sent%d bits to client\n", bits);
-      //}
-
+			m_client.type = CLIENT_GW;
+      m_client.port = server_port;
+      strcpy(m_client.buffer, inet_ntoa(server_addr.sin_addr));
+			printf("client connecting	server_port=%d	server_ip=%s\n", m_client.port, m_client.buffer);
+      sendto(s, (const void *) &m_client, (size_t) sizeof(m_client), 0,(const struct sockaddr *) &client_addr, (socklen_t) sizeof(client_addr));
 		}
 	}
 

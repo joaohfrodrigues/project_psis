@@ -31,9 +31,8 @@ int gallery_connect(char * host, in_port_t port){
   if(s_dgram == -1)
   {
     perror("Socket with gateway not created.Error:");
-    return 1;
+    return -1;
   }
-  printf("Socket gateway created\n");
 
   gateway_addr.sin_family = AF_INET;
   gateway_addr.sin_port = htons(port); /*numero de porto*/
@@ -47,7 +46,12 @@ int gallery_connect(char * host, in_port_t port){
   sendto(s_dgram, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
   /*receive answer from gateway*/
   recvfrom(s_dgram, &m, sizeof(m), 0,(struct sockaddr *) &gateway_addr, &gateway_addr_size);
-	printf("server_ip: %s\n", m.buffer);
+
+  if(m.port==0){
+    return 0;
+  }
+
+  printf("server_ip: %s\n", m.buffer);
   printf("server_port:%d\n", m.port);
 
   /*create socket with server*/
