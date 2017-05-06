@@ -31,14 +31,6 @@ void terminate_ok(int n){
 	//}
 }
 
-void * client_ops(void * arg){
-  /*receive message*/
-  recv(new_s, &m, sizeof(m), 0);
-  /* process message */
-  printf("%s\n", m.type);
-  send(new_s, story, strlen(story)+1, 0);
-}
-
 int main(int argc, char *argv[]){
 
   message m, gateway_message;
@@ -102,16 +94,12 @@ int main(int argc, char *argv[]){
     }
 
     while(1){
-      pthread_t client_thread;
-
       new_s= accept(s_server,NULL, NULL);
       perror("accept");
-
-      int error = pthread_create(&client_thread, NULL,	client_ops, NULL);
-      if(error != 0){
-        perror("pthread_create: ");
-        exit(-1);
-      }
+      /*receive message*/
+      recv(new_s, &m, sizeof(m), 0);
+      /* process message */
+      printf("%s\n", m.type);
     }
     printf("OK\n");
     exit(0);
