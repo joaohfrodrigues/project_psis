@@ -17,8 +17,8 @@ typedef struct photo{
     char keyword[MAX_KEYWORDS][MESSAGE_LEN];
 } photo;
 
-void error(const char *msg)
+/*void error(const char *msg)
 {
     perror(msg);
     exit(1);
-}
+}*/
