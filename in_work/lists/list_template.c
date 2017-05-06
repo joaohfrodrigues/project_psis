@@ -10,7 +10,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-#include"list.h"
+#include"LinkedList.h"
 
 /*
  *  Data Type: LinkedListStruct
@@ -211,57 +211,6 @@ LinkedList * insertUnsortedLinkedList(LinkedList * head, Item this)
   aux->next = new;
 
   return head;
-}
-
-/*
- *  Function:
- *    deleteItemLinkedList
- *
- *  Description:
- *    Deletes a Linked List node.
- *
- *  Arguments:
- *    Item to associate to the new node:
- *      Item this
- *    Pointer to the next node:
- *      (LinkedList *) next
- *
- *  Return value:
- *    Returns the pointer to the node.
- */
-LinkedList * deleteItemLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) (Item item1, Item item2))
-{
-  LinkedList * aux, *temp;
-
-  if(head == NULL)
-    return NULL;
-
-  for(aux = head; aux != NULL; aux = aux->next)
-    if((* comparisonItemFnt)(aux->this, item)){
-      if(aux == head){
-        if(aux->next==NULL){
-          free(aux);
-          return NULL;
-        }else{
-          temp=aux;
-          aux=aux->next;
-          free(temp);
-          return head;
-        }
-      }else{
-        temp=aux;
-        aux=aux->next;
-        free(temp);
-        return head;
-      }
-    }else if((* comparisonItemFnt)(aux->next, item) && aux->next->next== NULL){
-      temp=aux->next;
-      aux->next=NULL;
-      free(temp);
-      return head;
-    }
-
-  return item;
 }
 
 
