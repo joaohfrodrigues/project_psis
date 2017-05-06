@@ -34,8 +34,6 @@ void terminate_ok(int n){
 int main(int argc, char *argv[]){
 
   message m, gateway_message;
-  char * story;
-  story = strdup("");
   struct sockaddr_in server_addr, client_addr, gateway_addr;
   socklen_t server_addr_size, client_addr_size, gateway_addr_size;
 

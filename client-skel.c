@@ -14,33 +14,17 @@
 
 int s, s_dgram;
 
-void terminate_ok(int n){
-	int in;
-	printf("received signal %d, do you want to exit? (0/1)", n);
-	scanf("%d", &in);
-	if(in==0){
-		return;
-	}else{
-    close(s);
-		exit(-1);
-	}
-}
-
 int main(int argc, char *argv[]){
 
   message m, gateway_message;
   char client_addr_id[20];
-  char * story;
-  story = strdup("");
 
   struct sockaddr_in server_addr, client_addr, gateway_addr;
   socklen_t server_addr_size, client_addr_size, gateway_addr_size;
 
-  /*signal handling*/
-  signal(SIGINT, terminate_ok);
 
   sprintf(client_addr_id, "sock_cli_%d", getpid());
-  
+
   /* create socket with gateway */
   s_dgram= socket(AF_INET,SOCK_DGRAM,0);
   if(s_dgram == -1)
@@ -66,7 +50,7 @@ int main(int argc, char *argv[]){
 
   /*receive answer from gateway*/
   bits = recvfrom(s_dgram, &m, sizeof(m), 0,(struct sockaddr *) &gateway_addr, &gateway_addr_size);
-  
+
   printf("received %d bits from gateway\n", bits);
 
 
@@ -93,10 +77,6 @@ int main(int argc, char *argv[]){
   /* write message */
   send(s, &m, sizeof(m), 0);
   printf("OK\n");
-  /* receive story */
-  recv(s, story, 1000000, 0);
-
-  printf("%s\n", story);
 
   close(s);
   //unlink(client_addr_id);

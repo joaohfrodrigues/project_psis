@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
           m_client.address = inet_ntoa(server_addr.sin_addr);
 
           printf("message type %d\n", m_client.type);
-          int bits=sendto(s, (const void *) &m_client, (size_t) sizeof(m_client), 0,(const struct sockaddr *) &client_addr, (socklen_t) client_addr_size);
+          int bits=sendto(s, (const void *) &m_client, (size_t) sizeof(m_client), 0,(const struct sockaddr *) &client_addr, (socklen_t) sizeof(client_addr));
 
           printf("sent%d bits to client\n", bits);
       //}
