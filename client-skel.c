@@ -64,7 +64,7 @@ int main(int argc, char *argv[]){
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = m.port; /*numero de porto*/
   inet_aton(m.buffer, &server_addr.sin_addr); /*IP*/ /*fazer inet_ntoa na gateway do server e guardar no buffer!*/
-
+	printf("server_port:%d\n", m.port);
   printf("Socket created\n");
 
   if(connect(s, (struct sockaddr *) &server_addr, sizeof(server_addr))==-1){

@@ -54,28 +54,28 @@ int main(int argc, char *argv[]){
   inet_aton(argv[1], &gateway_addr.sin_addr);
   //gateway_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
 
+  /* create socket client*/
+  s_server= socket(AF_INET,SOCK_STREAM,0);
+  if(s_server == -1)
+  {
+    perror("Socket client not created.Error:");
+    return 1;
+  }
+  printf("Socket client created\n");
+
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_port = htons(3000+getpid()); /*numero de porto*/
+  server_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
+
   gateway_message.type=GW_SERVER;
   gateway_message.port=server_addr.sin_port;
 
   gateway_addr_size=sizeof(gateway_addr);
   printf("message type %d\n", gateway_message.type);
+  printf("server_port=%d\n", server_addr.sin_port);
   int bits=sendto(s_gw, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) gateway_addr_size);
 
   printf("sent%d bits\n", bits);
-
-
-    /* create socket client*/
-    s_server= socket(AF_INET,SOCK_STREAM,0);
-    if(s_server == -1)
-    {
-      perror("Socket client not created.Error:");
-      return 1;
-    }
-    printf("Socket client created\n");
-
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(3000+getpid()); /*numero de porto*/
-    server_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
 
     /*bind the socket server-client*/
     if(bind(s_server,(const struct sockaddr*)&server_addr,sizeof(server_addr)) == -1)
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]){
       /*receive message*/
       recv(new_s, &m, sizeof(m), 0);
       /* process message */
-      printf("%s\n", m.type);
+      printf("%s\n", m.buffer);
     }
     printf("OK\n");
     exit(0);

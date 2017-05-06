@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
   char client_addr_id[20];
   struct sockaddr_in gw_addr, src_addr;
   socklen_t gw_addr_size, src_addr_size;
-
+	int server_port;
   struct sockaddr_in server_addr, client_addr;
   socklen_t server_addr_size, client_addr_size;
 
@@ -71,6 +71,7 @@ int main(int argc, char *argv[]){
       server_addr.sin_port = src_addr.sin_port;
       server_addr.sin_addr = src_addr.sin_addr;
       server_addr_size = src_addr_size;
+			server_port=m.port;
 
 		}else if(m.type==CLIENT_GW){
 			printf("client connecting\n");
@@ -81,8 +82,9 @@ int main(int argc, char *argv[]){
 
       /*if(server_addr.sin_family!=AF_INET){/* ver outra condição de teste: ver se lista está vazia*/
 					//inet_aton(argv[1], server_addr.sin_addr);
+					printf("server_port=%d\n", server_port);
 					m_client.type = CLIENT_GW;
-          m_client.port = server_addr.sin_port;
+          m_client.port = server_port;
           strcpy(m_client.buffer, inet_ntoa(server_addr.sin_addr));
 
           printf("message type %d\n", m_client.type);
