@@ -13,7 +13,7 @@
 
 #include "image_server.h"
 
-int s_gw, s_client, s_server;
+int s_gw, new_s, s_server;
 
 
 /*HANDLING SIGNALS*/
@@ -25,10 +25,18 @@ void terminate_ok(int n){
 	//	return;
 	//}else{
     close(s_gw);
-    close(s_client);
+    close(new_s);
     close(s_server);
 		exit(-1);
 	//}
+}
+
+void * client_ops(void * arg){
+  /*receive message*/
+  recv(new_s, &m, sizeof(m), 0);
+  /* process message */
+  printf("%s\n", m.type);
+  send(new_s, story, strlen(story)+1, 0);
 }
 
 int main(int argc, char *argv[]){
@@ -94,17 +102,16 @@ int main(int argc, char *argv[]){
     }
 
     while(1){
+      pthread_t client_thread;
 
-      s_client= accept(s_server,NULL, NULL);
+      new_s= accept(s_server,NULL, NULL);
       perror("accept");
-      strcpy(m.buffer,"");
-      /*receive message*/
-      recv(s_client, &m, sizeof(m), 0);
-      /* process message */
-  	  story = strcat(story, m.buffer);
-      printf("%s\n", story);
-      send(s_client, story, strlen(story)+1, 0);
 
+      int error = pthread_create(&client_thread, NULL,	client_ops, NULL);
+      if(error != 0){
+        perror("pthread_create: ");
+        exit(-1);
+      }
     }
     printf("OK\n");
     exit(0);

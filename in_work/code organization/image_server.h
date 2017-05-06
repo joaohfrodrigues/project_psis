@@ -11,6 +11,12 @@ typedef struct message{
     int port;
 } message;
 
+typedef struct server{
+    int health;
+    char ip[MESSAGE_LEN];
+    int port;
+} server;
+
 typedef struct photo{
     char name[MESSAGE_LEN];
     uint32_t id;
