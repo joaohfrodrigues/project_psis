@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
   bits = recvfrom(s_dgram, &m, sizeof(m), 0,(struct sockaddr *) &gateway_addr, &gateway_addr_size);
 
   printf("received %d bits from gateway\n", bits);
-
+	printf("ip: %s\n", m.buffer);
 
   /*create socket with server*/
   s= socket(AF_INET,SOCK_STREAM,0);
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
   }
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = m.port; /*numero de porto*/
-  inet_aton(m.address, &server_addr.sin_addr); /*IP*/ /*fazer inet_ntoa na gateway do server e guardar no buffer!*/
+  inet_aton(m.buffer, &server_addr.sin_addr); /*IP*/ /*fazer inet_ntoa na gateway do server e guardar no buffer!*/
 
   printf("Socket created\n");
 

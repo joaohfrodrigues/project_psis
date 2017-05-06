@@ -80,9 +80,10 @@ int main(int argc, char *argv[]){
       client_addr_size = src_addr_size;
 
       /*if(server_addr.sin_family!=AF_INET){/* ver outra condição de teste: ver se lista está vazia*/
-          m_client.type = CLIENT_GW;
+					//inet_aton(argv[1], server_addr.sin_addr);
+					m_client.type = CLIENT_GW;
           m_client.port = server_addr.sin_port;
-          m_client.address = inet_ntoa(server_addr.sin_addr);
+          strcpy(m_client.buffer, inet_ntoa(server_addr.sin_addr));
 
           printf("message type %d\n", m_client.type);
           int bits=sendto(s, (const void *) &m_client, (size_t) sizeof(m_client), 0,(const struct sockaddr *) &client_addr, (socklen_t) sizeof(client_addr));

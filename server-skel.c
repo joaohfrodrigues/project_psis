@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
 
     /* create socket client*/
     s_server= socket(AF_INET,SOCK_STREAM,0);
-    if(s_client == -1)
+    if(s_server == -1)
     {
       perror("Socket client not created.Error:");
       return 1;
