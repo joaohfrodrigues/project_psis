@@ -15,6 +15,8 @@
 
 int s_gw, s_client, s_server;
 
+
+/*HANDLING SIGNALS*/
 void terminate_ok(int n){
 	//int in;
 	//printf("received signal %d, do you want to exit? (0/1)", n);

@@ -156,26 +156,25 @@ Item findItemLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) 
  *  Description:
  *    Finds Items in the LinkedList and put them in a vector
  */
-Item *findItemVectorLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) (Item item1, Item item2))
+Item *findItemVectorLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) (Item item1, Item item2), int *count)
 {
   LinkedList *aux;
-  int count=0;
 
   if(head == NULL)
     return item;
 
   for(aux = head; aux != NULL; aux = aux->next)
     if((* comparisonItemFnt)(aux->this, item))
-      count++;
+      (*count)++;
 
-  Item *vector=malloc(count*sizeof(Item));
+  Item *vector=calloc((*count),sizeof(Item));
 
-  count=0;
+  (*count)=0;
 
   for(aux = head; aux != NULL; aux = aux->next)
     if((* comparisonItemFnt)(aux->this, item)){
-      vector[count]=aux->this;
-      count++;
+      vector[(*count)]=aux->this;
+      (*count)++;
     }
 
   return vector;

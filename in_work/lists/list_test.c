@@ -67,7 +67,10 @@ photo4=(photo *) malloc(sizeof(photo));
 photo5=(photo *) malloc(sizeof(photo));
 
 keyword_item=(photo *) malloc(sizeof(photo));
-strcpy(keyword_item->keyword[0], "nature");
+
+printf("keyword search:\n");
+//fgets(keyword_item->keyword[0],MESSAGE_LEN, stdin);
+scanf("%s", keyword_item->keyword[0]);
 
 strcpy(photo1->name, "profile1.png");
 photo1->id=getphotoid(photo1->name);
@@ -106,13 +109,25 @@ server_list=insertUnsortedLinkedList(server_list,(Item) photo4);
 server_list=insertUnsortedLinkedList(server_list,(Item) photo5);
 
 photo_processed=(photo*) findItemLinkedList(server_list, (Item) photo3, &compare_id);
-printf("\nphoto_name=%s; photo_id=%d\n", photo_processed->name, photo_processed->id);
+printf("\nUsed findItem with id3, found photo_name=%s; photo_id=%d\n", photo_processed->name, photo_processed->id);
 
-photo ** vector= (photo **) findItemVectorLinkedList(server_list, (Item) keyword_item, &compare_keywords);
 
-for(int i=0; i<(sizeof(vector)/sizeof(Item)); i++)
-  printf("\nphoto_name=%s; photo_id=%d\n", vector[i]->name, vector[i]->id);
+/*LOOK FOR ITEM WITH KEYWORD AND CHANGE IT*/
+//photo_processed=(photo*) findItemLinkedList(server_list, (Item) photo5, &compare_id);
+//printf("\nUsed findItem with id5, found photo_name=%s; photo_id=%d\n", photo_processed->name, photo_processed->id);
+//strcpy(photo_processed->keyword[0], "nature");
 
+/*ADD A KEYWORD*/
+photo_processed=(photo*) findItemLinkedList(server_list, (Item) photo5, &compare_id);
+printf("\nUsed findItem with id5, found photo_name=%s; photo_id=%d\n", photo_processed->name, photo_processed->id);
+strcpy(photo_processed->keyword[1], "nature");
+/*number of photos in the vector*/
+int count=0;
+photo ** vector= (photo **) findItemVectorLinkedList(server_list, (Item) keyword_item, &compare_keywords, &count);
+printf("\nUsed findvectorItem with keyword %s, found:\n",keyword_item->keyword[0]);
+for(int i=0; i<count; i++)
+  printf("photo_name=%s; photo_id=%d\n", vector[i]->name, vector[i]->id);
+free(vector);
 
 
 freeLinkedList(server_list, &free_photo);
