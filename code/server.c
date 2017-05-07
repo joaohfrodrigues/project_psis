@@ -12,11 +12,11 @@
 #include <signal.h>
 #include <pthread.h>
 
-#include "image_server.h"
+//#include "image_server.h"
 #include "server_library.h"
 
 int s_gw, new_s, s_server;
-
+int ret;
 void *handle_client(void *arg){
   LinkedList *photo_list=initLinkedList();
   message m;
@@ -25,48 +25,9 @@ void *handle_client(void *arg){
     recv(new_s, &m, sizeof(m), 0);
     /* process message */
     if(m.type==ADD_PHOTO){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A PHOTO*/
-      m.port=getphotoid(m.buffer);
-      photo *new_ph=(photo *) malloc(sizeof(photo));
-      printf("adding photo, filename=%s;  id=%d;\n", m.buffer, m.port);
-
-      strcpy(new_ph->name, m.buffer);
-      new_ph->id=m.port;
-      new_ph->nkey=0;
-      photo_list=insertUnsortedLinkedList(photo_list, (Item) new_ph);
-      send(new_s, &m, sizeof(m), 0);
+      server_add_photo(new_s, m, &photo_list);
     }else if(m.type==ADD_KEYWORD){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A KEYWORD*/
-      int i=0;
-      int test_value=0;
-      photo *new_key=(photo *) malloc(sizeof(photo));
-      new_key->id=m.port;
-      new_key = (photo *) findItemLinkedList(photo_list, (Item) new_key, &compare_id);
-
-      if(new_key==NULL){
-        m.port=-2;
-      }else{
-        printf("id=%d name=%s nkey=%d\n",new_key->id, new_key->name, new_key->nkey);
-        if(new_key->nkey==0){
-          strcpy(new_key->keyword[0], m.buffer);
-          new_key->nkey=1;
-          m.port=1;
-        }else if(new_key->nkey==MAX_KEYWORDS){
-          m.port=-1;
-        }else{
-          for(i=0;i<new_key->nkey; i++){
-            if(strcmp(m.buffer, new_key->keyword[i])==0){
-              m.port=0;
-              test_value=1;
-              break;
-            }
-          }
-          if(test_value==0){
-            strcpy(new_key->keyword[new_key->nkey], m.buffer);
-            new_key->nkey++;
-            m.port=1;
-          }
-        }
-      }
-      send(new_s, &m, sizeof(m), 0);
+      server_add_keyword(new_s, m, photo_list);
     }else if(m.type==SEARCH_PHOTO){
 
     }else if(m.type==SEARCH_KEYWORD){
@@ -74,7 +35,7 @@ void *handle_client(void *arg){
     }else if(m.type==DELETE_PHOTO){
 
     }else if(m.type==CLIENT_DEATH){
-      //pthread_exit(&ret);
+      pthread_exit(&ret);
     }
 
     //free(new_ph);
@@ -99,7 +60,6 @@ void terminate_ok(int n){
 
 int main(int argc, char *argv[]){
   pthread_t thrd_client;
-  int ret;
   message gateway_message;
   struct sockaddr_in server_addr, client_addr, gateway_addr;
   socklen_t server_addr_size, client_addr_size, gateway_addr_size;

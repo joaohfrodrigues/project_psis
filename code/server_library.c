@@ -19,7 +19,7 @@
 #include <signal.h>
 #include <time.h>
 
-#include "image_server.h"
+
 #include "server_library.h"
 
 /*COMPARES THE ID OF PHOTO 1 WITH THE DETERMINED ID OF PHOTO 2*/
@@ -55,4 +55,51 @@ uint32_t getphotoid(char * name){
 /*FREES EACH PHOTO*/
 void free_photo(Item foto){
   free((photo *) foto);
+}
+
+void server_add_photo(int new_s, message m, LinkedList ** photo_list){
+  m.port=getphotoid(m.buffer);
+  photo *new_ph=(photo *) malloc(sizeof(photo));
+  printf("adding photo, filename=%s;  id=%d;\n", m.buffer, m.port);
+
+  strcpy(new_ph->name, m.buffer);
+  new_ph->id=m.port;
+  new_ph->nkey=0;
+  (*photo_list)=insertUnsortedLinkedList((*photo_list), (Item) new_ph);
+  send(new_s, &m, sizeof(m), 0);
+}
+
+void server_add_keyword(int new_s, message m, LinkedList * photo_list){
+  int i=0;
+  int test_value=0;
+  photo *new_key=(photo *) malloc(sizeof(photo));
+  new_key->id=m.port;
+  new_key = (photo *) findItemLinkedList(photo_list, (Item) new_key, &compare_id);
+
+  if(new_key==NULL){
+    m.port=-2;
+  }else{
+    printf("id=%d name=%s nkey=%d\n",new_key->id, new_key->name, new_key->nkey);
+    if(new_key->nkey==0){
+      strcpy(new_key->keyword[0], m.buffer);
+      new_key->nkey=1;
+      m.port=1;
+    }else if(new_key->nkey==MAX_KEYWORDS){
+      m.port=-1;
+    }else{
+      for(i=0;i<new_key->nkey; i++){
+        if(strcmp(m.buffer, new_key->keyword[i])==0){
+          m.port=0;
+          test_value=1;
+          break;
+        }
+      }
+      if(test_value==0){
+        strcpy(new_key->keyword[new_key->nkey], m.buffer);
+        new_key->nkey++;
+        m.port=1;
+      }
+    }
+  }
+  send(new_s, &m, sizeof(m), 0);
 }

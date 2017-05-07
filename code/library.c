@@ -111,10 +111,19 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){
   return m.port;
 }
 
+int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos){
+  message m;
+
+  m.type=SEARCH_PHOTO;
+  strcpy(m.buffer, keyword);
+  
+}
+
 
 int gallery_disconnect(int peer_socket){
   message m;
 
-  m.type=CLIENT_DEATH;  
+  m.type=CLIENT_DEATH;
   send(peer_socket, &m, sizeof(m), 0);
+  close(peer_socket);
 }

@@ -18,7 +18,7 @@ int peer_socket;
 /*HANDLING SIGNALS*/
 void terminate_ok(int n){
 	printf("terminating client...\n");
-  close(peer_socket);
+  gallery_disconnect(peer_socket);
 	exit(-1);
 }
 
