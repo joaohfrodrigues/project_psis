@@ -7,10 +7,17 @@
 #define CLIENT_DEATH 10
 #define SERVER_DEATH 20
 
+
+#define ADD_PHOTO 50
+#define ADD_KEYWORD 51
+#define SEARCH_PHOTO 52
+#define SEARCH_KEYWORD 53
+#define DELETE_PHOTO 54
+
 typedef struct message{
     int type;
     char buffer[MESSAGE_LEN];
-    int port;
+    uint32_t port;
 } message;
 
 typedef struct server{
@@ -23,6 +30,7 @@ typedef struct photo{
     char name[MESSAGE_LEN];
     uint32_t id;
     char keyword[MAX_KEYWORDS][MESSAGE_LEN];
+    int nkey;
 } photo;
 
 /*void error(const char *msg)

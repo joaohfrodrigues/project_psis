@@ -3,7 +3,7 @@
 * by
 * João Rodrigues and Sara Vieira
 *
-* library.h
+* library.c
 * Functions available for the client to use
 ****************************************************************************/
 #include <sys/types.h>
@@ -70,4 +70,51 @@ int gallery_connect(char * host, in_port_t port){
   }
 
   return s;
+}
+
+uint32_t gallery_add_photo(int peer_socket, char *file_name){
+  message m;
+
+  m.type=ADD_PHOTO;
+  strcpy(m.buffer, file_name);
+  m.port=0;
+
+  send(peer_socket, &m, sizeof(m), 0);
+  recv(peer_socket, &m, sizeof(m), 0);
+
+  printf("sucess\n");
+
+  return m.port;
+}
+
+int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){
+  message m;
+
+  m.type=ADD_KEYWORD;
+  strcpy(m.buffer, keyword);
+  m.port=id_photo;
+
+  send(peer_socket, &m, sizeof(m), 0);
+  recv(peer_socket, &m, sizeof(m), 0);
+
+  if(m.port==1)
+    printf("added keyword <%s>\n", m.buffer);
+  else if(m.port==0)
+    printf("keyword <%s> already in use\n", m.buffer);
+  else if(m.port==-1)
+    printf("no more space for new keywords\n");
+  else if(m.port==-2)
+    printf("id not recognized\n");
+
+  printf("sucess\n");
+
+  return m.port;
+}
+
+
+int gallery_disconnect(int peer_socket){
+  message m;
+
+  m.type=CLIENT_DEATH;  
+  send(peer_socket, &m, sizeof(m), 0);
 }
