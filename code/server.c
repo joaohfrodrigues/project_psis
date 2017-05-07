@@ -17,6 +17,10 @@
 
 int s_gw, new_s, s_server;
 int ret;
+message gateway_message;
+struct sockaddr_in gateway_addr;
+//socklen_t gateway_addr_size;
+
 void *handle_client(void *arg){
   LinkedList *photo_list=initLinkedList();
   message m;
@@ -65,6 +69,9 @@ int main(int argc, char *argv[]){
   socklen_t server_addr_size, client_addr_size, gateway_addr_size;
   int error;
 
+  /*signal handling*/
+  signal(SIGINT, terminate_ok);
+
   /* create socket gateway*/
   s_gw = socket(AF_INET,SOCK_DGRAM,0);
   if(s_gw == -1)
@@ -100,33 +107,28 @@ int main(int argc, char *argv[]){
   sendto(s_gw, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) gateway_addr_size);
 
     /*bind the socket server-client*/
-    if(bind(s_server,(const struct sockaddr*)&server_addr,sizeof(server_addr)) == -1)
-    {
-      perror("binding failed. Error:");
-      return 1;
-    }
-    printf("Bind completed\n");
+  if(bind(s_server,(const struct sockaddr*)&server_addr,sizeof(server_addr)) == -1)
+  {
+    perror("binding failed. Error:");
+    return 1;
+  }
+  printf("Bind completed\n");
 
+  if(listen(s_server, 10) == -1){
+    perror("listen ");
+    exit(-1);
+  }
 
-    if(listen(s_server, 10) == -1){
-      perror("listen ");
-      exit(-1);
-    }
-
-
-    /*signal handling*/
-    signal(SIGINT, terminate_ok);
-
-    while(1){
-      new_s= accept(s_server,NULL, NULL);
-      perror("accept");
-      error = pthread_create(&thrd_client, NULL,handle_client, NULL);
-    	if(error != 0){
-    		perror("pthread_create: ");
-    		exit(-1);
-    	}
-    }
-    printf("OK\n");
-    exit(0);
+  while(1){
+    new_s= accept(s_server,NULL, NULL);
+    perror("accept");
+    error = pthread_create(&thrd_client, NULL,handle_client, NULL);
+  	if(error != 0){
+  		perror("pthread_create: ");
+  		exit(-1);
+  	}
+  }
+  printf("OK\n");
+  exit(0);
 
 }

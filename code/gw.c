@@ -74,7 +74,7 @@ int main(int argc, char *argv[]){
 			strcpy(m.buffer, inet_ntoa(server_addr.sin_addr));
 			printf("server connecting	server_port=%d	server_ip=%s\n", m.port, m.buffer);
 		}else if(m.type==SERVER_DEATH){
-			printf("gateway received death message");
+			printf("gateway received death message\n");
 		}else if(m.type==CLIENT_GW){
       client_addr.sin_family = AF_INET;
       client_addr.sin_port = src_addr.sin_port;
