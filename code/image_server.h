@@ -15,24 +15,26 @@
 #define SEARCH_KEYWORD 53
 #define DELETE_PHOTO 54
 
+#include <sys/socket.h>
+
 typedef struct message{
     int type;
     char buffer[MESSAGE_LEN];
     uint32_t port;
 } message;
 
-typedef struct server{
-    int health;
-    char ip[MESSAGE_LEN];
-    int port;
-} server;
+typedef struct server_struct{
+    //int health;
+    struct sockaddr_in addr;
+    int nclients;
+} server_struct;
 
-typedef struct photo{
+typedef struct photo_struct{
     char name[MESSAGE_LEN];
     uint32_t id;
     char keyword[MAX_KEYWORDS][MESSAGE_LEN];
     int nkey;
-} photo;
+} photo_struct;
 
 /*void error(const char *msg)
 {

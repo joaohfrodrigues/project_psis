@@ -42,7 +42,7 @@ void *handle_client(void *arg){
 
     }else if(m.type==CLIENT_DEATH){
       printf("closing thread %lu\n", pthread_self());
-      pthread_exit(&ret);
+      pthread_exit(NULL);
     }
 
     //free(new_ph);

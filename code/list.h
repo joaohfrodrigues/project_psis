@@ -21,7 +21,7 @@ LinkedList * getNextNodeLinkedList(LinkedList * node);
 Item getItemLinkedList(LinkedList * node);
 Item findItemLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) (Item item1, Item item2));
 Item *findItemVectorLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) (Item item1, Item item2), int *count);
-LinkedList * insertUnsortedLinkedList(LinkedList * next, Item this);
+LinkedList * insertUnsortedLinkedList(LinkedList * , Item );
 LinkedList * insertSortedLinkedList(LinkedList * first, Item item, int (* comparisonItemFnt) (Item item1, Item item2));
 
 

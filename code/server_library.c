@@ -24,7 +24,7 @@
 
 /*COMPARES THE ID OF PHOTO 1 WITH THE DETERMINED ID OF PHOTO 2*/
 int compare_id(Item foto1, Item foto2){
-  if(((photo *)foto1)->id==((photo *)foto2)->id)
+  if(((photo_struct *)foto1)->id==((photo_struct *)foto2)->id)
     return 1;
   else
     return 0;
@@ -33,7 +33,7 @@ int compare_id(Item foto1, Item foto2){
 /*COMPARES THE KEYWORDS OF PHOTO 1 WITH A SINGLE KEYWORD OF PHOTO 2*/
 int compare_keywords(Item foto1, Item foto2){
   for(int i=0; i<MAX_KEYWORDS; i++){
-    if(strcmp(((photo *)foto1)->keyword[i],((photo *)foto2)->keyword[0])==0)
+    if(strcmp(((photo_struct *)foto1)->keyword[i],((photo_struct *)foto2)->keyword[0])==0)
       return 1;
   }
   return 0;
@@ -54,12 +54,12 @@ uint32_t getphotoid(char * name){
 
 /*FREES EACH PHOTO*/
 void free_photo(Item foto){
-  free((photo *) foto);
+  free((photo_struct *) foto);
 }
 
 void server_add_photo(int new_s, message m, LinkedList ** photo_list){
   m.port=getphotoid(m.buffer);
-  photo *new_ph=(photo *) malloc(sizeof(photo));
+  photo_struct *new_ph=(photo_struct *) malloc(sizeof(photo_struct));
   printf("adding photo, filename=%s;  id=%d;\n", m.buffer, m.port);
 
   strcpy(new_ph->name, m.buffer);
@@ -72,9 +72,9 @@ void server_add_photo(int new_s, message m, LinkedList ** photo_list){
 void server_add_keyword(int new_s, message m, LinkedList * photo_list){
   int i=0;
   int test_value=0;
-  photo *new_key=(photo *) malloc(sizeof(photo));
+  photo_struct *new_key=(photo_struct *) malloc(sizeof(photo_struct));
   new_key->id=m.port;
-  new_key = (photo *) findItemLinkedList(photo_list, (Item) new_key, &compare_id);
+  new_key = (photo_struct *) findItemLinkedList(photo_list, (Item) new_key, &compare_id);
 
   if(new_key==NULL){
     m.port=-2;
