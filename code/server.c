@@ -18,12 +18,14 @@
 int s_gw, new_s, s_server;
 int ret;
 message gateway_message;
-struct sockaddr_in gateway_addr;
+struct sockaddr_in gateway_addr, client_addr;
+LinkedList *photo_list;
 //socklen_t gateway_addr_size;
 
 void *handle_client(void *arg){
-  LinkedList *photo_list=initLinkedList();
+
   message m;
+  printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
   while(1){
     /*receive message*/
     recv(new_s, &m, sizeof(m), 0);
@@ -39,6 +41,7 @@ void *handle_client(void *arg){
     }else if(m.type==DELETE_PHOTO){
 
     }else if(m.type==CLIENT_DEATH){
+      printf("closing thread %lu\n", pthread_self());
       pthread_exit(&ret);
     }
 
@@ -63,11 +66,14 @@ void terminate_ok(int n){
 }
 
 int main(int argc, char *argv[]){
-  pthread_t thrd_client;
   message gateway_message;
-  struct sockaddr_in server_addr, client_addr, gateway_addr;
+  struct sockaddr_in server_addr, gateway_addr;
   socklen_t server_addr_size, client_addr_size, gateway_addr_size;
   int error;
+  pthread_t thrd_client[MAX_CLIENTS];
+  int i=0;
+
+  photo_list=initLinkedList();
 
   /*signal handling*/
   signal(SIGINT, terminate_ok);
@@ -114,19 +120,21 @@ int main(int argc, char *argv[]){
   }
   printf("Bind completed\n");
 
-  if(listen(s_server, 10) == -1){
+  if(listen(s_server, MAX_CLIENTS) == -1){
     perror("listen ");
     exit(-1);
   }
 
+  i=0;
   while(1){
     new_s= accept(s_server,NULL, NULL);
     perror("accept");
-    error = pthread_create(&thrd_client, NULL,handle_client, NULL);
+    error = pthread_create(&thrd_client[i], NULL,handle_client, NULL);
   	if(error != 0){
   		perror("pthread_create: ");
   		exit(-1);
   	}
+    i++;
   }
   printf("OK\n");
   exit(0);
