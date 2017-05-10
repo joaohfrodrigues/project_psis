@@ -11,9 +11,41 @@
 #include <signal.h>
 #include "image_server.h"
 #include "list.h"
+#include <pthread.h>
 
 int s;
 LinkedList *server_list;
+
+int compare_addr(Item addr1, Item addr2){
+	if(((server_struct *)addr1)->addr.sin_port==((server_struct *)addr2)->addr.sin_port)
+    return 1;
+  else
+    return 0;
+}
+
+void *sync_servers(void *arg){
+	int total, alive;
+	LinkedList *aux;
+	server_struct *server=NULL;
+	while(1){
+		alive=0;
+		total=0;
+		sleep(10);
+		for(aux=server_list; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
+			server=(server_struct*) getItemLinkedList(aux);
+			sendto(s, &alive, sizeof(alive), 0,(struct sockaddr *) &(server->addr), (socklen_t) sizeof(server->addr));
+			if(recv(s, &alive, sizeof(alive), 0)<=0){
+				deleteItemLinkedList(server_list, aux, compare_addr);
+				total--;
+				printf("deleting server...\n");
+			}else{
+				total++;
+			}
+		}
+		printf("There are %d ALIVE servers, port=%d\n", alive, server->addr.sin_port);
+	}
+}
+
 
 void terminate_ok(int n){
 	int in;
@@ -37,6 +69,9 @@ int main(int argc, char *argv[]){
   struct sockaddr_in server_addr, client_addr;
   socklen_t server_addr_size, client_addr_size;
 	LinkedList *aux=NULL;
+	pthread_t thrd_sync;
+	int error;
+
 	server_list=initLinkedList();
   /*signal handling*/
   signal(SIGINT, terminate_ok);
@@ -62,6 +97,13 @@ int main(int argc, char *argv[]){
     return 1;
   }
   printf("Bind completed\n");
+
+	error = pthread_create(&thrd_sync, NULL,sync_servers, NULL);
+	if(error != 0){
+		perror("pthread_create: ");
+		exit(-1);
+	}
+
 
 	while(1) {
 		recvfrom(s, &m, sizeof(m), 0,(struct sockaddr *) &src_addr, &src_addr_size);

@@ -57,7 +57,9 @@ void free_photo(Item foto){
   free((photo_struct *) foto);
 }
 
-void server_add_photo(int new_s, message m, LinkedList ** photo_list){
+void server_add_photo(int new_s, LinkedList ** photo_list){
+  message m;
+  recv(new_s, &m, sizeof(m), 0);
   m.port=getphotoid(m.buffer);
   photo_struct *new_ph=(photo_struct *) malloc(sizeof(photo_struct));
   printf("adding photo, filename=%s;  id=%d;\n", m.buffer, m.port);
@@ -69,7 +71,9 @@ void server_add_photo(int new_s, message m, LinkedList ** photo_list){
   send(new_s, &m, sizeof(m), 0);
 }
 
-void server_add_keyword(int new_s, message m, LinkedList * photo_list){
+void server_add_keyword(int new_s, LinkedList * photo_list){
+  message m;
+  recv(new_s, &m, sizeof(m), 0);
   int i=0;
   int test_value=0;
   photo_struct *new_key=(photo_struct *) malloc(sizeof(photo_struct));

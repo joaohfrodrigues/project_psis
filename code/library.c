@@ -74,11 +74,11 @@ int gallery_connect(char * host, in_port_t port){
 
 uint32_t gallery_add_photo(int peer_socket, char *file_name){
   message m;
-
-  m.type=ADD_PHOTO;
+  int type=ADD_PHOTO;
   strcpy(m.buffer, file_name);
   m.port=0;
-
+  
+  send(peer_socket, &type, sizeof(type), 0);
   send(peer_socket, &m, sizeof(m), 0);
   recv(peer_socket, &m, sizeof(m), 0);
 
@@ -89,11 +89,11 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name){
 
 int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){
   message m;
-
-  m.type=ADD_KEYWORD;
+  int type=ADD_KEYWORD;
   strcpy(m.buffer, keyword);
   m.port=id_photo;
 
+  send(peer_socket, &type, sizeof(type), 0);
   send(peer_socket, &m, sizeof(m), 0);
   recv(peer_socket, &m, sizeof(m), 0);
 
@@ -113,17 +113,17 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){
 
 int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos){
   message m;
-
-  m.type=SEARCH_PHOTO;
+  int type=SEARCH_PHOTO;
   strcpy(m.buffer, keyword);
-  
+
 }
 
 
 int gallery_disconnect(int peer_socket){
   message m;
+  int type=CLIENT_DEATH;
 
-  m.type=CLIENT_DEATH;
+  send(peer_socket, &type, sizeof(type), 0);
   send(peer_socket, &m, sizeof(m), 0);
   close(peer_socket);
 }

@@ -16,31 +16,39 @@
 #include "server_library.h"
 
 int s_gw, new_s, s_server;
-int ret;
 message gateway_message;
 struct sockaddr_in gateway_addr, client_addr;
 LinkedList *photo_list;
 //socklen_t gateway_addr_size;
 
+void *answer_gw(void *arg){
+  while(1){
+    int alive;
+    recv(s_gw, &alive, sizeof(alive), 0);
+    alive=1;
+    sendto(s_gw, (const void *) &alive, (size_t) sizeof(alive), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
+  }
+}
+
 void *handle_client(void *arg){
 
-  message m;
+  int type;
   printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
   while(1){
     /*receive message*/
-    recv(new_s, &m, sizeof(m), 0);
+    recv(new_s, &type, sizeof(type), 0);
     /* process message */
-    if(m.type==ADD_PHOTO){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A PHOTO*/
-      server_add_photo(new_s, m, &photo_list);
-    }else if(m.type==ADD_KEYWORD){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A KEYWORD*/
-      server_add_keyword(new_s, m, photo_list);
-    }else if(m.type==SEARCH_PHOTO){
+    if(type==ADD_PHOTO){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A PHOTO*/
+      server_add_photo(new_s, &photo_list);
+    }else if(type==ADD_KEYWORD){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A KEYWORD*/
+      server_add_keyword(new_s, photo_list);
+    }else if(type==SEARCH_PHOTO){
 
-    }else if(m.type==SEARCH_KEYWORD){
+    }else if(type==SEARCH_KEYWORD){
 
-    }else if(m.type==DELETE_PHOTO){
+    }else if(type==DELETE_PHOTO){
 
-    }else if(m.type==CLIENT_DEATH){
+    }else if(type==CLIENT_DEATH){
       printf("closing thread %lu\n", pthread_self());
       pthread_exit(NULL);
     }
@@ -71,6 +79,7 @@ int main(int argc, char *argv[]){
   socklen_t server_addr_size, client_addr_size, gateway_addr_size;
   int error;
   pthread_t thrd_client[MAX_CLIENTS];
+  pthread_t thrd_sync;
   int i=0;
 
   photo_list=initLinkedList();
@@ -111,6 +120,12 @@ int main(int argc, char *argv[]){
   gateway_addr_size=sizeof(gateway_addr);
   printf("server_port=%d\n", server_addr.sin_port);
   sendto(s_gw, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) gateway_addr_size);
+
+  error = pthread_create(&thrd_sync, NULL,answer_gw, NULL);
+  if(error != 0){
+    perror("pthread_create: ");
+    exit(-1);
+  }
 
     /*bind the socket server-client*/
   if(bind(s_server,(const struct sockaddr*)&server_addr,sizeof(server_addr)) == -1)
