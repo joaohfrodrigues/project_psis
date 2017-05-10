@@ -9,9 +9,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <signal.h>
-#include "image_server.h"
-#include "list.h"
 #include <pthread.h>
+
+#include "gw_library.h"
 
 int s;
 LinkedList *server_list;
@@ -61,14 +61,12 @@ void terminate_ok(int n){
 
 int main(int argc, char *argv[]){
 
-  message m, m_client;
-  char client_addr_id[20];
+  message m;
   struct sockaddr_in gw_addr, src_addr;
   socklen_t gw_addr_size, src_addr_size;
 	int server_port=0;
-  struct sockaddr_in server_addr, client_addr;
-  socklen_t server_addr_size, client_addr_size;
-	LinkedList *aux=NULL;
+  struct sockaddr_in server_addr;
+  socklen_t server_addr_size;
 	pthread_t thrd_sync;
 	int error;
 
@@ -98,11 +96,11 @@ int main(int argc, char *argv[]){
   }
   printf("Bind completed\n");
 
-	error = pthread_create(&thrd_sync, NULL,sync_servers, NULL);
+	/*error = pthread_create(&thrd_sync, NULL,sync_servers, NULL);
 	if(error != 0){
 		perror("pthread_create: ");
 		exit(-1);
-	}
+	}*/
 
 
 	while(1) {
@@ -111,44 +109,11 @@ int main(int argc, char *argv[]){
 		printf("received\n");
 
 		if(m.type==GW_SERVER){
-			server_struct *new_server=(server_struct *) malloc(sizeof(server_struct));
-      server_addr.sin_family = AF_INET;
-      server_addr.sin_port = src_addr.sin_port;
-      server_addr.sin_addr = src_addr.sin_addr;
-      server_addr_size = src_addr_size;
-			server_port=m.port;
-			strcpy(m.buffer, inet_ntoa(server_addr.sin_addr));
-
-			new_server->addr.sin_family = AF_INET;
-			new_server->addr.sin_port = m.port;
-			new_server->addr.sin_addr = src_addr.sin_addr;
-
-			server_list=insertUnsortedLinkedList(server_list, (Item) new_server);
-			printf("server connecting	server_port=%d	server_ip=%s\n", m.port, m.buffer);
+			server_connecting(s, &server_list, m, src_addr);
 		}else if(m.type==SERVER_DEATH){
 			printf("gateway received death message\n");
 		}else if(m.type==CLIENT_GW){
-			if(server_list==NULL){
-				printf("No servers available\n");
-			}else{
-				if(aux==NULL || getNextNodeLinkedList(aux)==NULL){
-					aux=server_list;
-				}else{
-					aux=getNextNodeLinkedList(aux);
-				}
-
-				server_struct* client_server=(server_struct*) getItemLinkedList(aux);
-
-      	client_addr.sin_family = AF_INET;
-      	client_addr.sin_port = src_addr.sin_port;
-      	client_addr.sin_addr = src_addr.sin_addr;
-      	client_addr_size = sizeof(src_addr);
-				m_client.type = CLIENT_GW;
-      	m_client.port = client_server->addr.sin_port;
-      	strcpy(m_client.buffer, inet_ntoa(client_server->addr.sin_addr));
-				printf("client connecting	server_port=%d	server_ip=%s\n", m_client.port, m_client.buffer);
-      	sendto(s, (const void *) &m_client, (size_t) sizeof(m_client), 0,(const struct sockaddr *) &client_addr, (socklen_t) sizeof(client_addr));
-			}
+			client_connecting(s, server_list, src_addr);
 		}
 	}
 
