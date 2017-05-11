@@ -52,7 +52,6 @@ void *thrd_server_fnc(void *arg){
 		if(type==S_CONNECT){
 			server_connecting(s_server, &server_list, server_addr);
 		}else if(type==S_ADD_PHOTO){
-			printf("server->gw: add photo\n");
 			gw_add_photo(s_server, &server_list);
 		}else if(type==S_ADD_KEYWORD){
 			gw_add_keyword(s_server, &server_list);
@@ -64,6 +63,7 @@ void *thrd_client_fnc(void *arg){
   struct sockaddr_in gw_addr, client_addr;
   socklen_t client_addr_size;
   message m;
+	LinkedList *aux=NULL;
 
   s_client= socket(AF_INET,SOCK_DGRAM,0);
   if(s_client == -1)
@@ -82,7 +82,7 @@ void *thrd_client_fnc(void *arg){
   printf("s_client: Bind completed\n");
 
   while(1){
-    client_connecting(s_client, &server_list);
+    client_connecting(s_client, &server_list, &aux);
   }
 }
 

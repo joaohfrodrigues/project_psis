@@ -39,18 +39,6 @@ int compare_keywords(Item foto1, Item foto2){
   return 0;
 }
 
-/*DETERMINES THE ID OF A PHOTO*/ /*NEEDS IMPROVEMENT*/
-uint32_t getphotoid(char * name){
-  uint32_t id=0;
-  int i;
-  srand(time(NULL));   // should only be called once
-  for(i=0; i<=strlen(name);i++){
-    id+=name[i];
-  }
-  id=id*strlen(name)+rand();
-  return id;
-}
-
 
 /*FREES EACH PHOTO*/
 void free_photo(Item foto){
@@ -60,7 +48,6 @@ void free_photo(Item foto){
 void server_add_photo(int s_gw, int s_client, LinkedList ** photo_list){
   message m;
   recv(s_gw, &m, sizeof(m), 0);
-  m.port=getphotoid(m.buffer);
   photo_struct *new_ph=(photo_struct *) malloc(sizeof(photo_struct));
   printf("adding photo, filename=%s;  id=%d;\n", m.buffer, m.port);
 

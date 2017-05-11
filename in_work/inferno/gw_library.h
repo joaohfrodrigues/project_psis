@@ -15,7 +15,7 @@ void *thrd_server_fnc(void *arg);
 void *thrd_client_fnc(void *arg);
 void *thrd_sync_fnc(void *arg);
 
-void client_connecting(int s, LinkedList **server_list);
+void client_connecting(int s, LinkedList **server_list, LinkedList **aux);
 void server_connecting(int s, LinkedList **server_list, struct sockaddr_in client_addr);
 
 void gw_add_photo(int s, LinkedList **server_list);

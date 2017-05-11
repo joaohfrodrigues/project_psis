@@ -30,7 +30,6 @@ typedef struct server_struct{
     //int health;
     struct sockaddr_in addr;
     int nclients;
-    struct sockaddr_in addr_sgw;
 } server_struct;
 
 typedef struct photo_struct{

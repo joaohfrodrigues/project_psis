@@ -17,7 +17,7 @@
 
 int s_gw, new_s, s_server;
 message gateway_message;
-struct sockaddr_in server_addr, gateway_addr, client_addr, sgw_addr;
+struct sockaddr_in server_addr, gateway_addr, client_addr;
 LinkedList *photo_list;
 //socklen_t gateway_addr_size;
 
@@ -42,7 +42,6 @@ void *handle_client(void *arg){
     recv(new_s, &type, sizeof(type), 0);
     /* process message */
     if(type==ADD_PHOTO){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A PHOTO*/
-      printf("client->server: add photo\n");
       handle_client_type=S_ADD_PHOTO;
       recv(new_s, &m, sizeof(m), 0);
       sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
@@ -129,17 +128,6 @@ int main(int argc, char *argv[]){
   gateway_addr.sin_port = htons(3001); /*numero de porto*/
   inet_aton(argv[1], &gateway_addr.sin_addr);
   //gateway_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
-
-  sgw_addr.sin_family = AF_INET;
-  sgw_addr.sin_port = htons(3002); /*numero de porto*/
-  sgw_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
-
-  if(bind(s_gw,(const struct sockaddr*)&sgw_addr,sizeof(sgw_addr)) == -1)
-  {
-    perror("binding failed. Error:");
-    return 1;
-  }
-  printf("Bind completed\n");
 
   /* create socket client*/
   s_server= socket(AF_INET,SOCK_STREAM,0);
