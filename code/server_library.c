@@ -39,41 +39,34 @@ int compare_keywords(Item foto1, Item foto2){
   return 0;
 }
 
-/*DETERMINES THE ID OF A PHOTO*/ /*NEEDS IMPROVEMENT*/
-uint32_t getphotoid(char * name){
-  uint32_t id=0;
-  int i;
-  srand(time(NULL));   // should only be called once
-  for(i=0; i<=strlen(name);i++){
-    id+=name[i];
-  }
-  id=id*strlen(name)+rand();
-  return id;
-}
-
 
 /*FREES EACH PHOTO*/
 void free_photo(Item foto){
   free((photo_struct *) foto);
 }
 
-void server_add_photo(int new_s, LinkedList ** photo_list){
-  message m;
-  recv(new_s, &m, sizeof(m), 0);
-  m.port=getphotoid(m.buffer);
+void server_add_photo(int s_gw, int s_client, LinkedList ** photo_list){
+  photo_struct photo;
+  recv(s_gw, &photo, sizeof(photo), 0);
   photo_struct *new_ph=(photo_struct *) malloc(sizeof(photo_struct));
-  printf("adding photo, filename=%s;  id=%d;\n", m.buffer, m.port);
+  printf("adding photo, filename=%s;  id=%d;\n", photo.name, photo.id);
 
-  strcpy(new_ph->name, m.buffer);
-  new_ph->id=m.port;
-  new_ph->nkey=0;
+  strcpy(new_ph->name, photo.name);
+  new_ph->id=photo.id;
+  new_ph->nkey=photo.nkey;
+
+  for(int i=0; i<photo.nkey; i++){
+    strcpy(new_ph->keyword[i], photo.keyword[i]);
+  }
+
+
   (*photo_list)=insertUnsortedLinkedList((*photo_list), (Item) new_ph);
-  send(new_s, &m, sizeof(m), 0);
+  send(s_client, &photo, sizeof(photo), 0);
 }
 
-void server_add_keyword(int new_s, LinkedList * photo_list){
+void server_add_keyword(int s_gw, int s_client, LinkedList * photo_list){
   message m;
-  recv(new_s, &m, sizeof(m), 0);
+  recv(s_gw, &m, sizeof(m), 0);
   int i=0;
   int test_value=0;
   photo_struct *new_key=(photo_struct *) malloc(sizeof(photo_struct));
@@ -105,5 +98,5 @@ void server_add_keyword(int new_s, LinkedList * photo_list){
       }
     }
   }
-  send(new_s, &m, sizeof(m), 0);
+  send(s_client, &m, sizeof(m), 0);
 }

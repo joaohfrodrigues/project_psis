@@ -11,12 +11,11 @@
 
 #ifndef SERVER_LIB
 #define SERVER_LIB
-int compare_id(Item foto1, Item foto2);
 int compare_keywords(Item foto1, Item foto2);
 uint32_t getphotoid(char * name);
 void free_photo(Item foto);
 
-void server_add_photo(int new_s, LinkedList ** photo_list);
-void server_add_keyword(int new_s, LinkedList * photo_list);
+void server_add_photo(int, int, LinkedList ** photo_list);
+void server_add_keyword(int, int, LinkedList * photo_list);
 
 #endif

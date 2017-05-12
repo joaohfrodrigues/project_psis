@@ -41,11 +41,11 @@ int gallery_connect(char * host, in_port_t port){
 
   gateway_message.type=CLIENT_GW;
   gateway_message.port=client_addr.sin_port;
-
+  strcpy(gateway_message.buffer, inet_ntoa(gateway_addr.sin_addr));
   /*ask gateway for server to connect*/
   sendto(s_dgram, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
   /*receive answer from gateway*/
-  recvfrom(s_dgram, &m, sizeof(m), 0,(struct sockaddr *) &gateway_addr, &gateway_addr_size);
+  recv(s_dgram, &m, sizeof(m), 0);
 
   if(m.port==0){
     return 0;
@@ -73,18 +73,19 @@ int gallery_connect(char * host, in_port_t port){
 }
 
 uint32_t gallery_add_photo(int peer_socket, char *file_name){
-  message m;
+  photo_struct photo;
   int type=ADD_PHOTO;
-  strcpy(m.buffer, file_name);
-  m.port=0;
-  
+  strcpy(photo.name, file_name);
+  printf("got %s\n", photo.name);
+  photo.id=0;
+
   send(peer_socket, &type, sizeof(type), 0);
-  send(peer_socket, &m, sizeof(m), 0);
-  recv(peer_socket, &m, sizeof(m), 0);
+  send(peer_socket, &photo, sizeof(photo), 0);
+  recv(peer_socket, &photo, sizeof(photo), 0);
 
   printf("sucess\n");
 
-  return m.port;
+  return photo.id;
 }
 
 int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){

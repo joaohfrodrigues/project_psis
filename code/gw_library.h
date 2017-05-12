@@ -9,6 +9,14 @@
 #include "list.h"
 #include "image_server.h"
 
-void client_connecting(int s, LinkedList *server_list, struct sockaddr_in client_addr);
 
-void server_connecting(int s, LinkedList **server_list, message m, struct sockaddr_in client_addr);
+int compare_addr(Item addr1, Item addr2);
+void *thrd_server_fnc(void *arg);
+void *thrd_client_fnc(void *arg);
+void *thrd_sync_fnc(void *arg);
+
+void client_connecting(int s, LinkedList **server_list, LinkedList **aux);
+void server_connecting(int s, LinkedList **server_list);
+
+void gw_add_photo(int s, LinkedList **server_list);
+void gw_add_keyword(int s, LinkedList **server_list);
