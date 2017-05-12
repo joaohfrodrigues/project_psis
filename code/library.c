@@ -126,5 +126,4 @@ int gallery_disconnect(int peer_socket){
 
   send(peer_socket, &type, sizeof(type), 0);
   send(peer_socket, &m, sizeof(m), 0);
-  close(peer_socket);
 }
