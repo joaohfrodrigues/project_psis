@@ -114,6 +114,26 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){
   return m.port;
 }
 
+int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name){
+  message m;
+  int type=GET_PHOTO_NAME;
+
+  m.port=id_photo;
+
+  if(id_photo <= 0){
+    printf("not a valid id (number > 0)\n");
+    return -1;
+  }
+
+  send(peer_socket, &type, sizeof(type), 0);
+  send(peer_socket, &m, sizeof(m), 0);
+  recv(peer_socket, &m, sizeof(m), 0);
+  printf("got %s\n", m.buffer);
+  strcpy((*photo_name), m.buffer);
+
+  return m.port;
+}
+
 int gallery_delete_photo(int peer_socket, uint32_t id_photo){
   message m;
   int type=DELETE_PHOTO;

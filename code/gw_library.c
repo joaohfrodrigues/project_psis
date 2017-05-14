@@ -125,6 +125,21 @@ void gw_add_keyword(int s, LinkedList **server_list){
   }
 }
 
+void gw_get_photo_name(int s, LinkedList **server_list){
+  LinkedList *aux;
+  message m;
+  int type=GET_PHOTO_NAME;
+  server_struct *server;
+
+  recv(s, &m, sizeof(m), 0);
+	printf("src_port_photo_name=%d\n", m.source);
+  for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
+		server= (server_struct*) getItemLinkedList(aux);
+    sendto(s, (const void *) &type, (size_t) sizeof(type), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
+    sendto(s, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
+  }
+}
+
 void gw_delete_photo(int s, LinkedList **server_list){
   LinkedList *aux;
   message m;

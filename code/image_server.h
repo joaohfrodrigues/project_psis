@@ -11,13 +11,17 @@
 #define S_ADD_PHOTO 31
 #define S_ADD_KEYWORD 32
 #define S_DELETE_PHOTO 33
+#define S_GET_PHOTO_NAME 34
+#define S_GET_PHOTO 35
 
 #define ADD_PHOTO 50
 #define ADD_KEYWORD 51
 #define SEARCH_PHOTO 52
 #define SEARCH_KEYWORD 53
-#define DELETE_PHOTO 54
-#define SYNC_PHOTO_LIST 55
+#define GET_PHOTO_NAME 54
+#define GET_PHOTO 55
+#define DELETE_PHOTO 56
+#define SYNC_PHOTO_LIST 57
 
 #include <sys/socket.h>
 

@@ -113,9 +113,29 @@ void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
         new_key->nkey++;
         m.port=1;
       }
+
+      free(new_key);
     }
   printf("id=%d name=%s nkey=%d\n",new_key->id, new_key->name, new_key->nkey);
   }
+  if(m.source==server_port){
+    send(m.s_client, &m, sizeof(m), 0);
+  }
+}
+
+void server_get_photo_name(int s_gw, LinkedList * photo_list, int server_port){
+  message m;
+  recv(s_gw, &m, sizeof(m), 0);
+  photo_struct photo;
+  photo_struct *found_photo;
+
+  photo.id=m.port;
+
+  found_photo= (photo_struct*) findItemLinkedList(photo_list, (Item) &photo, &compare_id);
+
+  strcpy(m.buffer, found_photo->name);
+
+  printf("sending filename=%s\n", m.buffer);
   if(m.source==server_port){
     send(m.s_client, &m, sizeof(m), 0);
   }

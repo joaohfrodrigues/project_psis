@@ -25,6 +25,7 @@ void terminate_ok(int n){
 int main(int argc, char *argv[]){
 	char buffer[MESSAGE_LEN];
 	int id=0;
+	char *name=(char *) malloc(MESSAGE_LEN*sizeof(char));
 
   /*signal handling*/
   signal(SIGINT, terminate_ok);
@@ -39,7 +40,7 @@ int main(int argc, char *argv[]){
 		exit(0);
 	}
 
-	for(int i=0; i<5; i++){
+	for(int i=0; i<3; i++){
 		printf("ADDING PHOTOS\nfilename to add: ");
 	  //fgets(m.buffer, MESSAGE_LEN, stdin);
 		scanf("%s", buffer);
@@ -47,11 +48,10 @@ int main(int argc, char *argv[]){
 	  gallery_add_photo(peer_socket, buffer);
 	}
 
-	printf("DELETING PHOTOS\nid to delete: ");
+	printf("GET PHOTO NAME\nid to search: ");
 	//fgets(m.buffer, MESSAGE_LEN, stdin);
 	scanf("%d", &id);
-	gallery_delete_photo(peer_socket, id);
-
+	gallery_get_photo_name(peer_socket, id, &name);
 
 	for(int i=0; i<3; i++){
 		printf("ADDING KEYWORDS\nphotoid(number >0): ");
