@@ -263,39 +263,43 @@ LinkedList * insertUnsortedLinkedList(LinkedList * head, Item this)
  *  Return value:
  *    Returns the pointer to the node.
  */
-LinkedList * deleteItemLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) (Item item1, Item item2))
+LinkedList * deleteItemLinkedList(LinkedList * head, Item item, int *ret, int (* comparisonItemFnt) (Item item1, Item item2), void (* freeItemFnt) (Item item1))
 {
   LinkedList * aux, *temp;
 
   if(head == NULL)
     return NULL;
 
-  for(aux = head; aux != NULL; aux = aux->next)
-    if((* comparisonItemFnt)(aux->this, item)){
-      if(aux == head){
-        if(aux->next==NULL){
-          free(aux);
-          return NULL;
-        }else{
-          temp=aux;
-          aux=aux->next;
-          free(temp);
-          return head;
-        }
+  for(aux = head; aux != NULL; aux = aux->next){
+    if((* comparisonItemFnt)(aux->this, item) && aux==head){
+      if(aux->next==NULL){
+        (* freeItemFnt)(aux->this);
+        free(aux);
+        return NULL;
       }else{
         temp=aux;
         aux=aux->next;
+        (* freeItemFnt)(temp->this);
         free(temp);
-        return head;
+        return aux;
       }
-    }else if((* comparisonItemFnt)(aux->next, item) && aux->next->next== NULL){
+    }else if((* comparisonItemFnt)(aux->next->this, item) && aux->next->next== NULL){
       temp=aux->next;
       aux->next=NULL;
+      (* freeItemFnt)(temp->this);
+      free(temp);
+      return head;
+    }else if((* comparisonItemFnt)(aux->next->this, item)){
+      temp=aux->next;
+      aux->next=aux->next->next;
+      (* freeItemFnt)(temp->this);
       free(temp);
       return head;
     }
+  }
 
-  return item;
+  (*ret)=0;
+  return head;
 }
 
 

@@ -66,6 +66,22 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
   }
 }
 
+void server_delete_photo(int s_gw, LinkedList ** photo_list, int server_port){
+  message m;
+  photo_struct photo;
+  recv(s_gw, &m, sizeof(m), 0);
+
+  photo.id=m.port;
+  printf("deleting photo; return_value:%d\n", m.port);
+  m.port=1;
+  (*photo_list)=deleteItemLinkedList((*photo_list), (Item) &photo, &m.port, &compare_id, &free_photo);
+
+
+  if(m.source==server_port){
+    send(m.s_client, &m.port, sizeof(m.port), 0);
+  }
+}
+
 void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
   message m;
   recv(s_gw, &m, sizeof(m), 0);
@@ -107,7 +123,7 @@ void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
 
 void server_search_photo(int s, LinkedList * photo_list){
   message m;
-  
+
   recv(s, &m, sizeof(m), 0);
 
   int count=0;

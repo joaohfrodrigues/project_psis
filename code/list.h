@@ -23,7 +23,7 @@ Item findItemLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) 
 Item *findItemVectorLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) (Item item1, Item item2), int *count);
 LinkedList * insertUnsortedLinkedList(LinkedList * , Item );
 LinkedList * insertSortedLinkedList(LinkedList * first, Item item, int (* comparisonItemFnt) (Item item1, Item item2));
-LinkedList * deleteItemLinkedList(LinkedList * head, Item item, int (* comparisonItemFnt) (Item item1, Item item2));
+LinkedList * deleteItemLinkedList(LinkedList * head, Item item, int *ret, int (* comparisonItemFnt) (Item item1, Item item2), void (* freeItemFnt) (Item item1));
 
 
 #endif

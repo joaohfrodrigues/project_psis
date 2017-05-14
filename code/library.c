@@ -114,6 +114,26 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){
   return m.port;
 }
 
+int gallery_delete_photo(int peer_socket, uint32_t id_photo){
+  message m;
+  int type=DELETE_PHOTO;
+  int ret_val=0;
+
+  if(id_photo <= 0){
+    printf("not a valid id (number > 0)\n");
+    return -1;
+  }
+
+  m.port=id_photo;
+  printf("deleting photo id: %d\n", m.port);
+  send(peer_socket, &type, sizeof(type), 0);
+  send(peer_socket, &m, sizeof(m), 0);
+  recv(peer_socket, &ret_val, sizeof(ret_val), 0);
+
+  return ret_val;
+}
+
+
 int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos){
   message m;
   int type=SEARCH_PHOTO;
@@ -123,12 +143,12 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
   uint32_t photo_2vector;
 
   send(peer_socket, &type, sizeof(type), 0);
-  
+
   // ACTIVATE FUNCION GW_SEARCH_PHOTO - STILL TO CREATE - ON GATEWAY
   // SENDS KEYWORD TO SEARCH AND RECEIVES NUMBER OF PHOTOS AND THE VECTOR
   send(peer_socket, &m, sizeof(m), 0);
   printf("asking for search on %s\n", m.buffer);
-  
+
   recv(peer_socket, &kw_photos, sizeof(kw_photos), 0);
   printf("receiving %d photos\n", kw_photos);
   //*id_photos = calloc(kw_photos, sizeof(photo_2vector));
@@ -142,11 +162,6 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
   return kw_photos;
 
 }
-
-int gallery_delete_photo(int peer_socket, uint32_t id_photo){
-  message m;
-}
-
 
 int gallery_disconnect(int peer_socket){
   message m;

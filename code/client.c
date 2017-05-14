@@ -46,6 +46,13 @@ int main(int argc, char *argv[]){
 	  /* write message */
 	  gallery_add_photo(peer_socket, buffer);
 	}
+
+	printf("DELETING PHOTOS\nid to delete: ");
+	//fgets(m.buffer, MESSAGE_LEN, stdin);
+	scanf("%d", &id);
+	gallery_delete_photo(peer_socket, id);
+
+
 	for(int i=0; i<3; i++){
 		printf("ADDING KEYWORDS\nphotoid(number >0): ");
 

@@ -61,13 +61,17 @@ void *handle_client(void *arg){
       m.s_client=s_client;
       sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
       sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
-      //server_add_keyword(new_s, photo_list);
     }else if(type==SEARCH_PHOTO){
 
     }else if(type==SEARCH_KEYWORD){
 
     }else if(type==DELETE_PHOTO){
-
+      handle_client_type=S_DELETE_PHOTO;
+      recv(s_client, &m, sizeof(m), 0);
+      m.source=sgw_addr.sin_port;
+      m.s_client=s_client;
+      sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
     }else if(type==CLIENT_DEATH){
       //n_clients--;
       printf("closing thread %lu\n", pthread_self());
@@ -103,6 +107,9 @@ void *gw_connection(void *arg){
         photo= *((photo_struct *) getItemLinkedList(aux));
         sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, (socklen_t)sizeof(gateway_addr));
       }
+    }else if(gw_connection_type==DELETE_PHOTO){
+      printf("gw->server:delete photo\n");
+      server_delete_photo(s_gw, &photo_list, sgw_addr.sin_port);
     }
   }
 }

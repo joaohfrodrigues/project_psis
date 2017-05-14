@@ -54,6 +54,8 @@ void *thrd_server_fnc(void *arg){
 			gw_add_photo(s_server, &server_list);
 		}else if(type==S_ADD_KEYWORD){
 			gw_add_keyword(s_server, &server_list);
+		}else if(type==S_DELETE_PHOTO){
+			gw_delete_photo(s_server, &server_list);
 		}
   }
 }
@@ -86,7 +88,7 @@ void *thrd_client_fnc(void *arg){
 }
 
 
-void *thrd_sync_fnc(void *arg){
+/*void *thrd_sync_fnc(void *arg){
 	int total, alive;
 	LinkedList *aux;
 	server_struct *server=NULL;
@@ -99,8 +101,8 @@ void *thrd_sync_fnc(void *arg){
 	printf("s_sync: Socket created\n");
 
 	gw_addr.sin_family = AF_INET;
-	gw_addr.sin_port = htons(3002); /*numero de porto*/
-	gw_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
+	gw_addr.sin_port = htons(3002);
+	gw_addr.sin_addr.s_addr = INADDR_ANY;
 
 
 	if(bind(s_sync,(const struct sockaddr*)&gw_addr,sizeof(gw_addr)) == -1)
@@ -117,7 +119,7 @@ void *thrd_sync_fnc(void *arg){
 			sendto(s_sync, &alive, sizeof(alive), 0,(struct sockaddr *) &(server->addr), (socklen_t) sizeof(server->addr));
 			sleep(0.5);
 			if(read(s_sync, &alive, sizeof(alive))<=0){
-				deleteItemLinkedList(server_list, aux, compare_addr);
+				deleteItemLinkedList(server_list, aux,NULL, compare_addr);
 				total--;
 				printf("deleting server...\n");
 			}else{
@@ -126,7 +128,7 @@ void *thrd_sync_fnc(void *arg){
 		}
 		printf("There are %d ALIVE servers, port=%d\n", alive, server->addr.sin_port);
 	}
-}
+}*/
 
 int main(int argc, char *argv[]){
 	pthread_t thrd_sync, thrd_client, thrd_server;
