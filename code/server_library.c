@@ -104,3 +104,31 @@ void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
     send(m.s_client, &m, sizeof(m), 0);
   }
 }
+
+void server_search_photo(int s, LinkedList * photo_list){
+  message m;
+  
+  recv(s, &m, sizeof(m), 0);
+
+  int count=0;
+  photo_struct ** vector= (photo_struct **) findItemVectorLinkedList(photo_list, (Item) m.buffer, &compare_keywords, &count);
+  printf("found %d matches for keyword %s\n", count, m.buffer);
+
+  send(s, &count, sizeof(count), 0);
+
+  uint32_t *photos_id = calloc(count, sizeof(uint32_t));
+
+  if(vector==NULL)
+    printf("nothing found for keyword %s\n", m.buffer);
+  else{
+    printf("\nUsed findvectorItem with keyword %s, found:\n",m.buffer);
+    for(int i=0; i<count; i++){
+      printf("photo_name=%s; photo_id=%d\n", vector[i]->name, vector[i]->id);
+
+      photos_id[i] = vector[i]->id;
+    }
+
+    free(vector);
+  }
+  send(s, &(*photos_id), sizeof(*photos_id), 0);
+}

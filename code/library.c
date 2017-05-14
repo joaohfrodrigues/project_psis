@@ -119,11 +119,34 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
   int type=SEARCH_PHOTO;
   strcpy(m.buffer, keyword);
 
+  int kw_photos;
+  uint32_t photo_2vector;
+
+  send(peer_socket, &type, sizeof(type), 0);
+  
+  // ACTIVATE FUNCION GW_SEARCH_PHOTO - STILL TO CREATE - ON GATEWAY
+  // SENDS KEYWORD TO SEARCH AND RECEIVES NUMBER OF PHOTOS AND THE VECTOR
+  send(peer_socket, &m, sizeof(m), 0);
+  printf("asking for search on %s\n", m.buffer);
+  
+  recv(peer_socket, &kw_photos, sizeof(kw_photos), 0);
+  printf("receiving %d photos\n", kw_photos);
+  //*id_photos = calloc(kw_photos, sizeof(photo_2vector));
+  //for(int i=0; i<kw_photos; i++){
+    recv(peer_socket, &(*id_photos), sizeof(*id_photos), 0);
+    printf("photos received\n");
+    //id_photos = (uint32_t **) insertUnsortedLinkedList((LinkedList *) id_photos, (Item ) photo_2vector);
+
+  //}
+
+  return kw_photos;
+
 }
 
 int gallery_delete_photo(int peer_socket, uint32_t id_photo){
   message m;
 }
+
 
 int gallery_disconnect(int peer_socket){
   message m;
