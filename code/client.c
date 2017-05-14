@@ -24,7 +24,7 @@ void terminate_ok(int n){
 
 int main(int argc, char *argv[]){
 	char buffer[MESSAGE_LEN];
-	int id;
+	int id=0;
 
   /*signal handling*/
   signal(SIGINT, terminate_ok);
@@ -47,8 +47,16 @@ int main(int argc, char *argv[]){
 	  gallery_add_photo(peer_socket, buffer);
 	}
 	for(int i=0; i<3; i++){
-		printf("ADDING KEYWORDS\nphotoid: ");
+		printf("ADDING KEYWORDS\nphotoid(number >0): ");
+
 		scanf("%d", &id);
+
+		while(id<=0){
+			printf("error: id not valid (number >0). Insert id: ");
+			scanf("%d", &id);
+			getchar();
+		}
+
 		printf("id=%d	keyword to add: ", id);
 	  //fgets(m.buffer, MESSAGE_LEN, stdin);
 		scanf("%s", buffer);

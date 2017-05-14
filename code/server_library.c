@@ -98,8 +98,8 @@ void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
         m.port=1;
       }
     }
-  }
   printf("id=%d name=%s nkey=%d\n",new_key->id, new_key->name, new_key->nkey);
+  }
   if(m.source==server_port){
     send(m.s_client, &m, sizeof(m), 0);
   }

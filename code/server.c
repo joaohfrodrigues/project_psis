@@ -47,7 +47,6 @@ void *handle_client(void *arg){
     recv(s_client, &type, sizeof(type), 0);
     /* process message */
     if(type==ADD_PHOTO){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A PHOTO*/
-      printf("BAMN\n");
       handle_client_type=S_ADD_PHOTO;
       recv(s_client, &photo, sizeof(photo), 0);
       photo.source=sgw_addr.sin_port;
