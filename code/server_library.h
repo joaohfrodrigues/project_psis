@@ -18,4 +18,5 @@ void free_photo(Item foto);
 void server_add_photo(int, LinkedList ** photo_list, int server_port);
 void server_add_keyword(int, LinkedList * photo_list, int server_port);
 
+
 #endif

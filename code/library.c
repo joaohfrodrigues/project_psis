@@ -93,6 +93,11 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){
   strcpy(m.buffer, keyword);
   m.port=id_photo;
 
+  if(id_photo <= 0){
+    printf("not a valid id (number > 0)\n");
+    return -1;
+  }
+
   send(peer_socket, &type, sizeof(type), 0);
   send(peer_socket, &m, sizeof(m), 0);
   recv(peer_socket, &m, sizeof(m), 0);
@@ -106,8 +111,6 @@ int gallery_add_keyword(int peer_socket, uint32_t id_photo, char *keyword){
   else if(m.port==-2)
     printf("id not recognized\n");
 
-  printf("sucess\n");
-
   return m.port;
 }
 
@@ -118,6 +121,9 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
 
 }
 
+int gallery_delete_photo(int peer_socket, uint32_t id_photo){
+  message m;
+}
 
 int gallery_disconnect(int peer_socket){
   message m;
