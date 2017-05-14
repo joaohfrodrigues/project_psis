@@ -24,11 +24,12 @@ void terminate_ok(int n){
 	exit(-1);
 }
 
+/*THIS THREAD HANDLES THE SERVERS*/
 void *thrd_server_fnc(void *arg){
   message m;
 	int type=0;
 	struct sockaddr_in gw_addr, client_addr;
-	
+
   s_server= socket(AF_INET,SOCK_DGRAM,0);
   if(s_server == -1)
     perror("s_server: Socket not created.Error:");
@@ -56,7 +57,7 @@ void *thrd_server_fnc(void *arg){
 		}
   }
 }
-
+/*THIS THREAD HANDLES THE CLIENTS*/
 void *thrd_client_fnc(void *arg){
   struct sockaddr_in gw_addr, client_addr;
   socklen_t client_addr_size;

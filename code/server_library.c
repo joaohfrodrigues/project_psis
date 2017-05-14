@@ -61,7 +61,9 @@ void server_add_photo(int s_gw, int s_client, LinkedList ** photo_list){
 
 
   (*photo_list)=insertUnsortedLinkedList((*photo_list), (Item) new_ph);
-  send(s_client, &photo, sizeof(photo), 0);
+  if(photo.source==1){
+    send(s_client, &photo, sizeof(photo), 0);
+  }
 }
 
 void server_add_keyword(int s_gw, int s_client, LinkedList * photo_list){
@@ -76,7 +78,6 @@ void server_add_keyword(int s_gw, int s_client, LinkedList * photo_list){
   if(new_key==NULL){
     m.port=-2;
   }else{
-    printf("id=%d name=%s nkey=%d\n",new_key->id, new_key->name, new_key->nkey);
     if(new_key->nkey==0){
       strcpy(new_key->keyword[0], m.buffer);
       new_key->nkey=1;
@@ -98,5 +99,7 @@ void server_add_keyword(int s_gw, int s_client, LinkedList * photo_list){
       }
     }
   }
-  send(s_client, &m, sizeof(m), 0);
+  printf("id=%d name=%s nkey=%d\n",new_key->id, new_key->name, new_key->nkey);
+  if(m.source==1)
+    send(s_client, &m, sizeof(m), 0);
 }

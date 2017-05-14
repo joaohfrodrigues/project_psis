@@ -25,6 +25,7 @@ typedef struct message{
     int type;
     char buffer[MESSAGE_LEN];
     uint32_t port;
+    int source;
 } message;
 
 typedef struct server_struct{
@@ -39,6 +40,7 @@ typedef struct photo_struct{
     uint32_t id;
     char keyword[MAX_KEYWORDS][MESSAGE_LEN];
     int nkey;
+    int source;
 } photo_struct;
 
 /*void error(const char *msg)

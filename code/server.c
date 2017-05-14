@@ -15,11 +15,13 @@
 //#include "image_server.h"
 #include "server_library.h"
 
-int s_gw, new_s, s_server;
+int s_gw, s_server;
 struct sockaddr_in server_addr, gateway_addr, client_addr, sgw_addr;
 LinkedList *photo_list;
 server_struct gateway_message;
 int n_clients=0;
+int s_clients[MAX_CLIENTS];
+int new_s;
 //socklen_t gateway_addr_size;
 
 /*void *sync_fnc(void *arg){
@@ -37,7 +39,7 @@ void *handle_client(void *arg){
   int handle_client_type=0;
   message m;
   photo_struct photo;
-
+  //n_clients++; /*SELECT THE CORRECT SOCKET AND INCREMENT THE NUMBER OF CLIENTS*/
   printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
   while(1){
     /*receive message*/
@@ -48,12 +50,14 @@ void *handle_client(void *arg){
       recv(new_s, &photo, sizeof(photo), 0);
       sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
       sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
+      sendto(s_gw, (const void *) &sgw_addr.sin_port, (size_t) sizeof(sgw_addr.sin_port), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
       //server_add_photo(new_s, &photo_list);
     }else if(type==ADD_KEYWORD){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A KEYWORD*/
       handle_client_type=S_ADD_KEYWORD;
       recv(new_s, &m, sizeof(m), 0);
       sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
       sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      sendto(s_gw, (const void *) &sgw_addr.sin_port, (size_t) sizeof(sgw_addr.sin_port), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
       //server_add_keyword(new_s, photo_list);
     }else if(type==SEARCH_PHOTO){
 
@@ -62,7 +66,7 @@ void *handle_client(void *arg){
     }else if(type==DELETE_PHOTO){
 
     }else if(type==CLIENT_DEATH){
-      n_clients--;
+      //n_clients--;
       printf("closing thread %lu\n", pthread_self());
       pthread_exit(NULL);
     }
@@ -108,8 +112,9 @@ void terminate_ok(int n){
 	//	return;
 	//}else{
   close(s_gw);
-  close(new_s);
   close(s_server);
+  for(int i=0; i<n_clients; i++)
+    close(s_clients[n_clients]);
   //freeLinkedList(photo_list, &free_photo);
 	exit(-1);
 	//}
@@ -199,7 +204,6 @@ int main(int argc, char *argv[]){
   		perror("pthread_create: ");
   		exit(-1);
   	}
-    n_clients++;
   }
   printf("OK\n");
   exit(0);

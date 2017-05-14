@@ -76,7 +76,6 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name){
   photo_struct photo;
   int type=ADD_PHOTO;
   strcpy(photo.name, file_name);
-  printf("got %s\n", photo.name);
   photo.id=0;
 
   send(peer_socket, &type, sizeof(type), 0);
