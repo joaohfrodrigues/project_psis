@@ -19,9 +19,8 @@ int s_gw, s_server;
 struct sockaddr_in server_addr, gateway_addr, client_addr, sgw_addr;
 LinkedList *photo_list;
 server_struct gateway_message;
-int n_clients=0;
-int s_clients[MAX_CLIENTS];
-int new_s;
+int n_clients=-1;
+int new_s[MAX_CLIENTS];
 //socklen_t gateway_addr_size;
 
 /*void *sync_fnc(void *arg){
@@ -39,25 +38,30 @@ void *handle_client(void *arg){
   int handle_client_type=0;
   message m;
   photo_struct photo;
+  int s_client=new_s[n_clients];
   //n_clients++; /*SELECT THE CORRECT SOCKET AND INCREMENT THE NUMBER OF CLIENTS*/
+  printf("n_clients=%d, socket=%d\n", n_clients, s_client);
   printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
   while(1){
     /*receive message*/
-    recv(new_s, &type, sizeof(type), 0);
+    recv(s_client, &type, sizeof(type), 0);
     /* process message */
     if(type==ADD_PHOTO){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A PHOTO*/
+      printf("BAMN\n");
       handle_client_type=S_ADD_PHOTO;
-      recv(new_s, &photo, sizeof(photo), 0);
+      recv(s_client, &photo, sizeof(photo), 0);
+      photo.source=sgw_addr.sin_port;
+      photo.s_client=s_client;
       sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
-      sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
-      sendto(s_gw, (const void *) &sgw_addr.sin_port, (size_t) sizeof(sgw_addr.sin_port), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
+      sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
       //server_add_photo(new_s, &photo_list);
     }else if(type==ADD_KEYWORD){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A KEYWORD*/
       handle_client_type=S_ADD_KEYWORD;
-      recv(new_s, &m, sizeof(m), 0);
+      recv(s_client, &m, sizeof(m), 0);
+      m.source=sgw_addr.sin_port;
+      m.s_client=s_client;
       sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
       sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
-      sendto(s_gw, (const void *) &sgw_addr.sin_port, (size_t) sizeof(sgw_addr.sin_port), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
       //server_add_keyword(new_s, photo_list);
     }else if(type==SEARCH_PHOTO){
 
@@ -84,6 +88,7 @@ void *gw_connection(void *arg){
   char test[MESSAGE_LEN];
   LinkedList *aux=NULL;
   photo_struct photo;
+
   strcpy(test, inet_ntoa(gateway_message.addr.sin_addr));
   sendto(s_gw, (const void *) &gw_m_type, (size_t) sizeof(gw_m_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
   sendto(s_gw, (const void *) &(gateway_message), (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t)sizeof(gateway_addr));
@@ -91,9 +96,9 @@ void *gw_connection(void *arg){
     recv(s_gw, &gw_connection_type, sizeof(gw_connection_type), 0);
     if(gw_connection_type==ADD_PHOTO){
       printf("gw->server:add photo\n");
-      server_add_photo(s_gw, new_s, &photo_list);
+      server_add_photo(s_gw, &photo_list, sgw_addr.sin_port);
     }else if(gw_connection_type==ADD_KEYWORD){
-      server_add_keyword(s_gw, new_s, photo_list);
+      server_add_keyword(s_gw, photo_list, sgw_addr.sin_port);
     }else if(gw_connection_type==SYNC_PHOTO_LIST){
       for(aux=photo_list; aux!=NULL; aux=getNextNodeLinkedList(aux)){
         photo= *((photo_struct *) getItemLinkedList(aux));
@@ -114,7 +119,7 @@ void terminate_ok(int n){
   close(s_gw);
   close(s_server);
   for(int i=0; i<n_clients; i++)
-    close(s_clients[n_clients]);
+    close(new_s[i]);
   //freeLinkedList(photo_list, &free_photo);
 	exit(-1);
 	//}
@@ -197,7 +202,9 @@ int main(int argc, char *argv[]){
   }
 
   while(1){
-    new_s= accept(s_server,NULL, NULL);
+    new_s[n_clients+1]= accept(s_server,NULL, NULL);
+    n_clients++;
+    printf("n_clients=%d new_s=%d\n",n_clients, new_s[n_clients]);
     perror("accept");
     error = pthread_create(&thrd_client[n_clients], NULL,handle_client, NULL);
   	if(error != 0){

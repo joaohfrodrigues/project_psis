@@ -45,7 +45,7 @@ void free_photo(Item foto){
   free((photo_struct *) foto);
 }
 
-void server_add_photo(int s_gw, int s_client, LinkedList ** photo_list){
+void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
   photo_struct photo;
   recv(s_gw, &photo, sizeof(photo), 0);
   photo_struct *new_ph=(photo_struct *) malloc(sizeof(photo_struct));
@@ -61,12 +61,12 @@ void server_add_photo(int s_gw, int s_client, LinkedList ** photo_list){
 
 
   (*photo_list)=insertUnsortedLinkedList((*photo_list), (Item) new_ph);
-  if(photo.source==1){
-    send(s_client, &photo, sizeof(photo), 0);
+  if(photo.source==server_port){
+    send(photo.s_client, &photo, sizeof(photo), 0);
   }
 }
 
-void server_add_keyword(int s_gw, int s_client, LinkedList * photo_list){
+void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
   message m;
   recv(s_gw, &m, sizeof(m), 0);
   int i=0;
@@ -100,6 +100,7 @@ void server_add_keyword(int s_gw, int s_client, LinkedList * photo_list){
     }
   }
   printf("id=%d name=%s nkey=%d\n",new_key->id, new_key->name, new_key->nkey);
-  if(m.source==1)
-    send(s_client, &m, sizeof(m), 0);
+  if(m.source==server_port){
+    send(m.s_client, &m, sizeof(m), 0);
+  }
 }
