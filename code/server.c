@@ -63,8 +63,7 @@ void *handle_client(void *arg){
       sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
     }else if(type==SEARCH_PHOTO){
       printf("calling function to search photos\n");
-      server_search_photo(s_client, (photo_list));
-
+      server_search_photo(s_client, photo_list);
     }else if(type==SEARCH_KEYWORD){
 
     }else if(type==DELETE_PHOTO){

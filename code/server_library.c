@@ -113,10 +113,9 @@ void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
         new_key->nkey++;
         m.port=1;
       }
-
       //free(new_key);
     }
-  printf("id=%d name=%s nkey=%d\n",new_key->id, new_key->name, new_key->nkey);
+  printf("id=%d name=%s nkey=%d keyword=%s\n",new_key->id, new_key->name, new_key->nkey, new_key->keyword[new_key->nkey-1]);
   }
   if(m.source==server_port){
     send(m.s_client, &m, sizeof(m), 0);
@@ -137,12 +136,13 @@ void server_get_photo_name(int s_client, LinkedList * photo_list){
 
 void server_search_photo(int s, LinkedList * photo_list){
   message m;
-
+  photo_struct photo;
   recv(s, &m, sizeof(m), 0);
-
   int count=0;
-  photo_struct ** vector= (photo_struct **) findItemVectorLinkedList(photo_list, (Item) m.buffer, &compare_keywords, &count);
-  printf("found %d matches for keyword %s\n", count, m.buffer);
+  int i=0;
+  strcpy(photo.keyword[0], m.buffer);
+  photo_struct ** vector= (photo_struct **) findItemVectorLinkedList(photo_list, (Item) &photo, &compare_keywords, &count);
+  printf("found %d matches for keyword %s\n", count, photo.keyword[0]);
 
   send(s, &count, sizeof(count), 0);
 
@@ -150,16 +150,19 @@ void server_search_photo(int s, LinkedList * photo_list){
 
   if(count != 0){
     uint32_t *photos_id = calloc(count, sizeof(uint32_t));
+    photos_id[2]=3;
+    printf("done %d \n", photos_id[2]);
   }
 
   if(vector==NULL)
     printf("nothing found for keyword %s\n", m.buffer);
   else{
     printf("\nUsed findvectorItem with keyword %s, found:\n",m.buffer);
-    for(int i=0; i<count; i++){
-      printf("photo_name=%s; photo_id=%d\n", vector[i]->name, vector[i]->id);
-
-      photos_id[i] = vector[i]->id;
+    for(i=0; i<count; i++){
+      printf("photo_name=%s; photo_id=%d, i=%d\n", vector[i]->name, vector[i]->id, i);
+      printf("%d this\n", photos_id[i]);
+      photos_id[i]=(uint32_t) vector[i]->id;
+      printf("here\n");
     }
 
     free(vector);
