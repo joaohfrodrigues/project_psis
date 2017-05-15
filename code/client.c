@@ -70,6 +70,24 @@ int main(int argc, char *argv[]){
 	  /* write message */
 	  gallery_add_keyword(peer_socket, (uint32_t) id, buffer);
 	}
+
+	int nr_photos;
+	uint32_t **id_vector = NULL;
+	for(int i=0; i<1; i++){
+		printf("SEARCHING PHOTOS\nkeyword: ");
+
+		scanf("%s", buffer);
+
+		while(buffer=="\0"){
+			printf("error: keyword not valid. Insert keyword: ");
+			scanf("%s", buffer);
+			getchar();
+		}
+
+	  	nr_photos = gallery_search_photo(peer_socket, buffer, id_vector);
+	  	printf("%d photos found related to keyword %s\n", nr_photos, buffer);
+	}
+
   gallery_disconnect(peer_socket);
   exit(0);
 }
