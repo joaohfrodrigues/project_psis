@@ -160,7 +160,7 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
   strcpy(m.buffer, keyword);
 
   int kw_photos;
-  uint32_t photo_2vector;
+  //uint32_t photo_2vector;
 
   send(peer_socket, &type, sizeof(type), 0);
 

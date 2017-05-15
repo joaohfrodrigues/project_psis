@@ -152,7 +152,11 @@ void server_search_photo(int s, LinkedList * photo_list){
 
   send(s, &count, sizeof(count), 0);
 
-  uint32_t *photos_id = calloc(count, sizeof(uint32_t));
+  uint32_t *photos_id = NULL;
+
+  if(count != 0){
+    uint32_t *photos_id = calloc(count, sizeof(uint32_t));
+  }
 
   if(vector==NULL)
     printf("nothing found for keyword %s\n", m.buffer);
