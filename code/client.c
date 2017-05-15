@@ -38,6 +38,8 @@ int main(int argc, char *argv[]){
 	}else if(peer_socket==0){
 		printf("no peers available\n");
 		exit(0);
+	}else{
+		printf("connected to a server\n");
 	}
 
 	for(int i=0; i<3; i++){

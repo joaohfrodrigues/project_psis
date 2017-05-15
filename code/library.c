@@ -164,7 +164,6 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
 
   send(peer_socket, &type, sizeof(type), 0);
 
-  // ACTIVATE FUNCION GW_SEARCH_PHOTO - STILL TO CREATE - ON GATEWAY
   // SENDS KEYWORD TO SEARCH AND RECEIVES NUMBER OF PHOTOS AND THE VECTOR
   send(peer_socket, &m, sizeof(m), 0);
   printf("asking for search on %s\n", m.buffer);
