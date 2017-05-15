@@ -56,8 +56,6 @@ void *thrd_server_fnc(void *arg){
 			gw_add_keyword(s_server, &server_list);
 		}else if(type==S_DELETE_PHOTO){
 			gw_delete_photo(s_server, &server_list);
-		}else if(type==S_GET_PHOTO_NAME){
-			gw_get_photo_name(s_server, &server_list);
 		}
   }
 }

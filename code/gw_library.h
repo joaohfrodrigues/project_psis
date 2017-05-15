@@ -20,5 +20,4 @@ void server_connecting(int s, LinkedList **server_list);
 
 void gw_add_photo(int s, LinkedList **server_list);
 void gw_add_keyword(int s, LinkedList **server_list);
-void gw_get_photo_name(int s, LinkedList **server_list);
 void gw_delete_photo(int s, LinkedList **server_list);

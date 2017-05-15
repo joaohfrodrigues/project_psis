@@ -73,12 +73,8 @@ void *handle_client(void *arg){
       sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
       sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
     }else if(type==GET_PHOTO_NAME){
-      handle_client_type=S_GET_PHOTO_NAME;
-      recv(s_client, &m, sizeof(m), 0);
-      m.source=sgw_addr.sin_port;
-      m.s_client=s_client;
-      sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
-      sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      printf("got here\n");
+      server_get_photo_name(s_client, photo_list);
     }else if(type==CLIENT_DEATH){
       //n_clients--;
       printf("closing thread %lu\n", pthread_self());
@@ -117,9 +113,6 @@ void *gw_connection(void *arg){
     }else if(gw_connection_type==DELETE_PHOTO){
       printf("gw->server:delete photo\n");
       server_delete_photo(s_gw, &photo_list, sgw_addr.sin_port);
-    }else if(gw_connection_type==GET_PHOTO_NAME){
-      printf("gw->server:get_photo_name\n");
-      server_get_photo_name(s_gw, photo_list, sgw_addr.sin_port);
     }
   }
 }
