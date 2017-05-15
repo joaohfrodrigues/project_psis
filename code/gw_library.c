@@ -47,6 +47,12 @@ void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
 
   server_struct* client_server=(server_struct*) getItemLinkedList(*aux);
 
+	if(client_server==NULL){
+		m_client.port=0;
+		sendto(s, (const void *) &m_client, (size_t) sizeof(m_client), 0,(const struct sockaddr *) &client_addr, (socklen_t) sizeof(client_addr));
+		return;
+	}
+
   m_client.type = CLIENT_GW;
   m_client.port = client_server->addr.sin_port;
   strcpy(m_client.buffer, inet_ntoa(client_server->addr.sin_addr));
