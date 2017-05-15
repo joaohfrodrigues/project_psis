@@ -149,9 +149,9 @@ void server_search_photo(int s, LinkedList * photo_list){
   uint32_t *photos_id = NULL;
 
   if(count != 0){
-    *photos_id = calloc(count, sizeof(uint32_t));
-    photos_id[count]=3;
-    printf("done %d \n", photos_id[count]);
+    photos_id = calloc(count, sizeof(uint32_t));
+    photos_id[2]=3;
+    printf("done %d \n", photos_id[2]);
   }
 
   if(vector==NULL)

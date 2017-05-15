@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
 	scanf("%d", &id);
 	gallery_get_photo_name(peer_socket, id, &name);
 
-	for(int i=0; i<3; i++){
+	for(int i=0; i<5; i++){
 		printf("ADDING KEYWORDS\nphotoid(number >0): ");
 
 		scanf("%d", &id);
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
 
 	int nr_photos;
 	uint32_t **id_vector = NULL;
-	for(int i=0; i<1; i++){
+	for(int i=0; i<3; i++){
 		printf("SEARCHING PHOTOS\nkeyword: ");
 
 		scanf("%s", buffer);
