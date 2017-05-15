@@ -74,7 +74,7 @@ int main(int argc, char *argv[]){
 	}
 
 	int nr_photos;
-	uint32_t **id_vector = NULL;
+	uint32_t *id_vector = NULL;
 	for(int i=0; i<1; i++){
 		printf("SEARCHING PHOTOS\nkeyword: ");
 
@@ -86,8 +86,11 @@ int main(int argc, char *argv[]){
 			getchar();
 		}
 
-	  	nr_photos = gallery_search_photo(peer_socket, buffer, id_vector);
+	  	nr_photos = gallery_search_photo(peer_socket, buffer, &id_vector);
 	  	printf("%d photos found related to keyword %s\n", nr_photos, buffer);
+			for(int i=0; i<nr_photos; i++){
+				printf("id=%d\n", id_vector[i]);
+			}
 	}
 
   gallery_disconnect(peer_socket);
