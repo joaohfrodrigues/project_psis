@@ -149,9 +149,9 @@ void server_search_photo(int s, LinkedList * photo_list){
   uint32_t *photos_id = NULL;
 
   if(count != 0){
-    uint32_t *photos_id = (uint32_t) calloc(count, sizeof(uint32_t));
-    photos_id[2]=3;
-    printf("done %d \n", photos_id[2]);
+    uint32_t *photos_id = calloc(count, sizeof(uint32_t));
+    photos_id[count]=3;
+    printf("done %d \n", photos_id[count]);
   }
 
   if(vector==NULL)
@@ -161,7 +161,7 @@ void server_search_photo(int s, LinkedList * photo_list){
     for(i=0; i<count; i++){
       printf("photo_name=%s; photo_id=%d, i=%d\n", vector[i]->name, vector[i]->id, i);
       printf("%d BEFORE transfer of data\n", vector[i]->id);
-      photos_id[i]= (uint32_t) vector[i]->id;
+      photos_id[i] = (uint32_t) vector[i]->id;
       printf("%d AFTER transfer of data\n", photos_id[i]);
       printf("here\n");
     }
