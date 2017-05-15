@@ -24,6 +24,7 @@
 #define SYNC_PHOTO_LIST 57
 
 #include <sys/socket.h>
+#include <stdint.h>
 
 typedef struct message{
     int type;
