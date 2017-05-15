@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
 		printf("connected to a server\n");
 	}
 
-	for(int i=0; i<2; i++){
+	for(int i=0; i<4; i++){
 		printf("ADDING PHOTOS\nfilename to add: ");
 	  //fgets(m.buffer, MESSAGE_LEN, stdin);
 		scanf("%s", buffer);
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
 	scanf("%d", &id);
 	gallery_get_photo_name(peer_socket, id, &name);*/
 
-	for(int i=0; i<3; i++){
+	for(int i=0; i<5; i++){
 		printf("ADDING KEYWORDS\nphotoid(number >0): ");
 
 		scanf("%d", &id);

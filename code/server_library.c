@@ -130,6 +130,13 @@ void server_get_photo_name(int s_client, LinkedList * photo_list){
 
   photo.id=m.port;
   found_photo= (photo_struct*) findItemLinkedList(photo_list, (Item) &photo, &compare_id);
+  
+  if(found_photo==NULL){
+    m.port=-2;
+    send(s_client, &m, sizeof(m), 0);
+    return;
+  }
+
   strcpy(m.buffer, found_photo->name);
   send(s_client, &m, sizeof(m), 0);
 }

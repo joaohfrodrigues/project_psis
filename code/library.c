@@ -128,6 +128,12 @@ int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name
   send(peer_socket, &type, sizeof(type), 0);
   send(peer_socket, &m, sizeof(m), 0);
   recv(peer_socket, &m, sizeof(m), 0);
+
+  if(m.port==-2){
+    printf("id not recognized or not present\n");
+    return 0;
+  }
+
   printf("got %s\n", m.buffer);
   strcpy((*photo_name), m.buffer);
 

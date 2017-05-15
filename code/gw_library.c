@@ -106,7 +106,7 @@ void gw_add_photo(int s, LinkedList **server_list){
 	count_photos++;
   /*struct sockaddr_in aux_addr;*/
   recv(s, &photo, sizeof(photo), 0);
-	printf("src_port=%d\n", photo.source);
+	//printf("src_port=%d\n", photo.source);
 	photo.id=id;
 	photo.nkey=0;
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
@@ -123,7 +123,7 @@ void gw_add_keyword(int s, LinkedList **server_list){
   server_struct *server;
 
   recv(s, &m, sizeof(m), 0);
-	printf("src_port=%d\n", m.source);
+	//printf("src_port=%d\n", m.source);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
     sendto(s, (const void *) &type, (size_t) sizeof(type), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
@@ -138,7 +138,7 @@ void gw_delete_photo(int s, LinkedList **server_list){
   server_struct *server;
 
   recv(s, &m, sizeof(m), 0);
-	printf("src_port=%d\n", m.source);
+	//printf("src_port=%d\n", m.source);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
     sendto(s, (const void *) &type, (size_t) sizeof(type), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
