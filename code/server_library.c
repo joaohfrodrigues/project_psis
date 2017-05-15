@@ -149,7 +149,7 @@ void server_search_photo(int s, LinkedList * photo_list){
   uint32_t *photos_id = NULL;
 
   if(count != 0){
-    uint32_t *photos_id = calloc(count, sizeof(uint32_t));
+    *photos_id = calloc(count, sizeof(uint32_t));
     photos_id[count]=3;
     printf("done %d \n", photos_id[count]);
   }
