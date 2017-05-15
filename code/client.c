@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
 		printf("connected to a server\n");
 	}
 
-	for(int i=0; i<3; i++){
+	for(int i=0; i<2; i++){
 		printf("ADDING PHOTOS\nfilename to add: ");
 	  //fgets(m.buffer, MESSAGE_LEN, stdin);
 		scanf("%s", buffer);
@@ -50,10 +50,10 @@ int main(int argc, char *argv[]){
 	  gallery_add_photo(peer_socket, buffer);
 	}
 
-	printf("GET PHOTO NAME\nid to search: ");
+	/*printf("GET PHOTO NAME\nid to search: ");
 	//fgets(m.buffer, MESSAGE_LEN, stdin);
 	scanf("%d", &id);
-	gallery_get_photo_name(peer_socket, id, &name);
+	gallery_get_photo_name(peer_socket, id, &name);*/
 
 	for(int i=0; i<3; i++){
 		printf("ADDING KEYWORDS\nphotoid(number >0): ");
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
 
 	int nr_photos;
 	uint32_t *id_vector = NULL;
-	for(int i=0; i<1; i++){
+	for(int i=0; i<3; i++){
 		printf("SEARCHING PHOTOS\nkeyword: ");
 
 		scanf("%s", buffer);

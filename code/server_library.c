@@ -157,7 +157,6 @@ void server_search_photo(int s, LinkedList * photo_list){
     for(i=0; i<count; i++){
       printf("photo_name=%s; photo_id=%d, i=%d\n", vector[i]->name, vector[i]->id, i);
       photos_id[i]= (uint32_t) vector[i]->id;
-      printf("id=%d\n",photos_id[i]);
       send(s, &(photos_id[i]), sizeof(photos_id[i]), 0);
     }
     free(vector);
