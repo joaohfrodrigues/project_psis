@@ -1,6 +1,6 @@
 #define MESSAGE_LEN 100
 #define MAX_KEYWORDS 10
-#define MAX_CLIENTS 10
+#define MAX_CLIENTS 20
 
 #define CLIENT_GW 1
 #define CLIENT_SERVER 2
