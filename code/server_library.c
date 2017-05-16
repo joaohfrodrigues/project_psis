@@ -72,10 +72,9 @@ void server_delete_photo(int s_gw, LinkedList ** photo_list, int server_port){
   recv(s_gw, &m, sizeof(m), 0);
 
   photo.id=m.port;
-  printf("deleting photo; return_value:%d\n", m.port);
+  printf("deleting photo\n", m.port);
   m.port=1;
   (*photo_list)=deleteItemLinkedList((*photo_list), (Item) &photo, &m.port, &compare_id, &free_photo);
-
 
   if(m.source==server_port){
     send(m.s_client, &m.port, sizeof(m.port), 0);
@@ -130,7 +129,7 @@ void server_get_photo_name(int s_client, LinkedList * photo_list){
 
   photo.id=m.port;
   found_photo= (photo_struct*) findItemLinkedList(photo_list, (Item) &photo, &compare_id);
-  
+
   if(found_photo==NULL){
     m.port=-2;
     send(s_client, &m, sizeof(m), 0);

@@ -156,6 +156,12 @@ int gallery_delete_photo(int peer_socket, uint32_t id_photo){
   send(peer_socket, &m, sizeof(m), 0);
   recv(peer_socket, &ret_val, sizeof(ret_val), 0);
 
+  if(ret_val==1){
+    printf("deleted photo with id=%d\n", id_photo);
+  }else{
+    printf("id not recognized\n");
+  }
+
   return ret_val;
 }
 
