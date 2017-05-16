@@ -13,6 +13,7 @@
 #define S_DELETE_PHOTO 33
 #define S_GET_PHOTO_NAME 34
 #define S_GET_PHOTO 35
+#define S_SERVER_DEATH 36
 
 #define ADD_PHOTO 50
 #define ADD_KEYWORD 51

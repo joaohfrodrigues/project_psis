@@ -56,6 +56,8 @@ void *thrd_server_fnc(void *arg){
 			gw_add_keyword(s_server, &server_list);
 		}else if(type==S_DELETE_PHOTO){
 			gw_delete_photo(s_server, &server_list);
+		}else if(type==S_SERVER_DEATH){
+			server_disconnecting(s_server, &server_list);
 		}
   }
 }
@@ -101,9 +103,8 @@ void *thrd_client_fnc(void *arg){
 	printf("s_sync: Socket created\n");
 
 	gw_addr.sin_family = AF_INET;
-	gw_addr.sin_port = htons(3002);
+	gw_addr.sin_port = htons(3003);
 	gw_addr.sin_addr.s_addr = INADDR_ANY;
-
 
 	if(bind(s_sync,(const struct sockaddr*)&gw_addr,sizeof(gw_addr)) == -1)
 		perror("s_sync: binding failed. Error:");

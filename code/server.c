@@ -120,12 +120,10 @@ void *gw_connection(void *arg){
 
 /*HANDLING SIGNALS*/
 void terminate_ok(int n){
-	//int in;
-	//printf("received signal %d, do you want to exit? (0/1)", n);
-	//scanf("%d", &in);
-	//if(in==0){
-	//	return;
-	//}else{
+	int gw_m_type=S_SERVER_DEATH;
+  int port=server_addr.sin_port;
+  sendto(s_gw, (const void *) &gw_m_type, (size_t) sizeof(gw_m_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
+  sendto(s_gw, (const void *) &(port), (size_t) sizeof(port), 0,(const struct sockaddr *) &gateway_addr, (socklen_t)sizeof(gateway_addr));
   close(s_gw);
   close(s_server);
   for(int i=0; i<n_clients; i++)

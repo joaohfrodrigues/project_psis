@@ -11,12 +11,14 @@
 
 
 int compare_addr(Item addr1, Item addr2);
+void free_server(Item server);
 void *thrd_server_fnc(void *arg);
 void *thrd_client_fnc(void *arg);
 void *thrd_sync_fnc(void *arg);
 
 void client_connecting(int s, LinkedList **server_list, LinkedList **aux);
 void server_connecting(int s, LinkedList **server_list);
+void server_disconnecting(int s, LinkedList **server_list);
 
 void gw_add_photo(int s, LinkedList **server_list);
 void gw_add_keyword(int s, LinkedList **server_list);

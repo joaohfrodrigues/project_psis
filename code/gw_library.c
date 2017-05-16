@@ -32,6 +32,12 @@ int compare_addr(Item addr1, Item addr2){
     return 0;
 }
 
+/*FREES EACH PHOTO*/
+void free_server(Item server){
+  free((server_struct *) server);
+}
+
+
 void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
   struct sockaddr_in client_addr;
   socklen_t client_addr_size;
@@ -89,12 +95,27 @@ void server_connecting(int s, LinkedList **server_list){
 		}
 	}
 
+
+
   (*server_list)=insertUnsortedLinkedList((*server_list), (Item) new_server);
 	strcpy(test, inet_ntoa(new_server->addr.sin_addr));
 	strcpy(test2, inet_ntoa(new_server->sgw_addr.sin_addr));
 
   printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
 	printf("sgw server_port=%d, server ip=%s\n", new_server->sgw_addr.sin_port, test2);
+}
+
+void server_disconnecting(int s, LinkedList **server_list){
+	photo_struct photo;
+	int port, ret_value=0;
+	/*RECEBE O ENDEREÇO DO NOVO SERVIDOR*/
+  recv(s, &port, sizeof(port), 0);
+	server_struct server;
+	server.addr.sin_port=port;
+
+	(*server_list)= deleteItemLinkedList((*server_list), (Item) &server, &ret_value, &compare_addr, &free_server);
+
+	printf("deleted server with port %d\n", server.addr.sin_port);
 }
 
 void gw_add_photo(int s, LinkedList **server_list){

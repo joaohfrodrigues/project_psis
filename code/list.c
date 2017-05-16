@@ -267,8 +267,12 @@ LinkedList * deleteItemLinkedList(LinkedList * head, Item item, int *ret, int (*
 {
   LinkedList * aux, *temp;
 
-  if(head == NULL)
+  (*ret)=1;
+
+  if(head == NULL){
+    (*ret)=0;
     return NULL;
+  }
 
   for(aux = head; aux != NULL; aux = aux->next){
     if((* comparisonItemFnt)(aux->this, item) && aux==head){
