@@ -122,6 +122,8 @@ void gw_add_photo(int s, LinkedList **server_list){
   LinkedList *aux;
 	photo_struct photo;
   int type=ADD_PHOTO;
+	char c;
+	int i=0;
 	server_struct *server;
 	id++;
 	count_photos++;
@@ -130,10 +132,29 @@ void gw_add_photo(int s, LinkedList **server_list){
 	//printf("src_port=%d\n", photo.source);
 	photo.id=id;
 	photo.nkey=0;
+
+	printf("HERE4\n");
+
+	char file[photo.size];
+
+	/*for(i=0; i< photo.size; i++){
+		recv(s, &c, sizeof(c), 0);
+		file[i]=c;
+	}*/
+
+	recv(s, &file, sizeof(file), 0);
+	printf("HERE2\n");
+
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
     sendto(s, (const void *) &type, (size_t) sizeof(type), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
     sendto(s, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
+
+		if(server->sgw_addr.sin_port!=photo.source){
+			for(i=0; i< photo.size; i++){
+				sendto(s, (const void *) &file[i], (size_t) sizeof(file[i]), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
+			}
+		}
   }
 }
 

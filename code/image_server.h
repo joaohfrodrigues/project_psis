@@ -49,6 +49,7 @@ typedef struct photo_struct{
     int nkey;
     int source;
     int s_client;
+    int size;
 } photo_struct;
 
 /*void error(const char *msg)

@@ -38,7 +38,9 @@ void *handle_client(void *arg){
   int handle_client_type=0;
   message m;
   photo_struct photo;
+  char c;
   int s_client=new_s[n_clients];
+  int i=0;
   //n_clients++; /*SELECT THE CORRECT SOCKET AND INCREMENT THE NUMBER OF CLIENTS*/
   printf("n_clients=%d, socket=%d\n", n_clients, s_client);
   printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
@@ -47,12 +49,27 @@ void *handle_client(void *arg){
     recv(s_client, &type, sizeof(type), 0);
     /* process message */
     if(type==ADD_PHOTO){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A PHOTO*/
+      FILE *dest_file;
       handle_client_type=S_ADD_PHOTO;
       recv(s_client, &photo, sizeof(photo), 0);
       photo.source=sgw_addr.sin_port;
       photo.s_client=s_client;
       sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
       sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+
+      dest_file=fopen(photo.name, "wb");
+      char file[photo.size];
+
+      for(i=0; i< photo.size; i++){
+        recv(s_client, &c, sizeof(c), 0);
+        file[i]=c;
+        fputc(c, dest_file);
+        //sendto(s_gw, (const void *) &c, (size_t) sizeof(c), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      }
+      printf("HERE? %d\n", sizeof(file));
+      sendto(s_gw, (const void *) &file, (size_t) sizeof(file), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      printf("HERE\n");
+      fclose(dest_file);
       //server_add_photo(new_s, &photo_list);
     }else if(type==ADD_KEYWORD){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A KEYWORD*/
       handle_client_type=S_ADD_KEYWORD;

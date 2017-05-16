@@ -75,11 +75,42 @@ int gallery_connect(char * host, in_port_t port){
 uint32_t gallery_add_photo(int peer_socket, char *file_name){
   photo_struct photo;
   int type=ADD_PHOTO;
+  ssize_t len;
+  FILE *photo_file;
   strcpy(photo.name, file_name);
   photo.id=0;
+  char c;
+  int i=0;
+  struct stat file_stat;
 
-  send(peer_socket, &type, sizeof(type), 0);
-  send(peer_socket, &photo, sizeof(photo), 0);
+
+
+
+  photo_file=fopen(file_name, "rb");
+  int fd=fileno(photo_file);
+  if (fd == -1){
+    fprintf(stderr, "Error opening file --> %s", strerror(errno));
+    fclose(photo_file);
+    exit(EXIT_FAILURE);
+  }else{
+    //GET FILE STATS
+    if (fstat(fd, &file_stat) < 0){
+      fprintf(stderr, "Error fstat --> %s", strerror(errno));
+       exit(EXIT_FAILURE);
+    }
+    printf("File Size: \n%d bytes\n", file_stat.st_size);
+    photo.size=file_stat.st_size;
+
+    send(peer_socket, &type, sizeof(type), 0);
+    send(peer_socket, &photo, sizeof(photo), 0);
+
+    for(i=0; i<file_stat.st_size; i++){
+      c=fgetc(photo_file);
+      send(peer_socket, &c, sizeof(c), 0);
+    }
+  }
+  fclose(photo_file);
+
   recv(peer_socket, &photo, sizeof(photo), 0);
 
   printf("sucess\n");
