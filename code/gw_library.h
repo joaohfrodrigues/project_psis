@@ -11,6 +11,7 @@
 
 
 int compare_addr(Item addr1, Item addr2);
+int compare_sgw_addr(Item addr1, Item addr2);
 void free_server(Item server);
 void *thrd_server_fnc(void *arg);
 void *thrd_client_fnc(void *arg);

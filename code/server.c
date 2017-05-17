@@ -58,16 +58,19 @@ void *handle_client(void *arg){
       sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
 
       dest_file=fopen(photo.name, "wb");
-      char file[photo.size];
-
+      //char file[photo.size];
+      int conf=0;
       for(i=0; i< photo.size; i++){
         recv(s_client, &c, sizeof(c), 0);
-        file[i]=c;
+        //file[i]=c;
         fputc(c, dest_file);
-        //sendto(s_gw, (const void *) &c, (size_t) sizeof(c), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+        sendto(s_gw, (const void *) &c, (size_t) sizeof(c), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+        sleep(0.05);
+        //if(i==photo.size-1)
+          //recv(s_gw, &conf, sizeof(conf), 0);
+        //printf("i=%d\n", i);
       }
-      printf("HERE? %d\n", sizeof(file));
-      sendto(s_gw, (const void *) &file, (size_t) sizeof(file), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      //sendto(s_gw, (const void *) &file, (size_t) sizeof(file), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
       printf("HERE\n");
       fclose(dest_file);
       //server_add_photo(new_s, &photo_list);

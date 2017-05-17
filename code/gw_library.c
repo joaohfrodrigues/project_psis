@@ -32,6 +32,13 @@ int compare_addr(Item addr1, Item addr2){
     return 0;
 }
 
+int compare_sgw_addr(Item addr1, Item addr2){
+	if(((server_struct *)addr1)->sgw_addr.sin_port==((server_struct *)addr2)->sgw_addr.sin_port)
+    return 1;
+  else
+    return 0;
+}
+
 /*FREES EACH PHOTO*/
 void free_server(Item server){
   free((server_struct *) server);
@@ -127,8 +134,10 @@ void gw_add_photo(int s, LinkedList **server_list){
 	server_struct *server;
 	id++;
 	count_photos++;
-  /*struct sockaddr_in aux_addr;*/
+  server_struct aux_server;
+	server_struct *aux2_server;
   recv(s, &photo, sizeof(photo), 0);
+	char test2[MESSAGE_LEN];
 	//printf("src_port=%d\n", photo.source);
 	photo.id=id;
 	photo.nkey=0;
@@ -137,19 +146,25 @@ void gw_add_photo(int s, LinkedList **server_list){
 
 	char file[photo.size];
 
-	/*for(i=0; i< photo.size; i++){
+	aux_server.sgw_addr.sin_port=photo.source;
+	aux2_server= (server_struct*) findItemLinkedList(*server_list,(Item) &aux_server, &compare_sgw_addr);
+	strcpy(test2, inet_ntoa(aux2_server->sgw_addr.sin_addr));
+	printf("ip: %s, port=%d\n", test2, aux2_server->sgw_addr.sin_port);
+
+	int conf=0;
+	for(i=0; i< photo.size; i++){
 		recv(s, &c, sizeof(c), 0);
 		file[i]=c;
-	}*/
-
-	recv(s, &file, sizeof(file), 0);
-	printf("HERE2\n");
+		//printf("i=%d\n", i);
+	}
+	conf=1;
+	//sendto(s, (const void *) &conf, (size_t) sizeof(conf), 0,(const struct sockaddr *) &(aux2_server->sgw_addr), (socklen_t) sizeof(aux2_server->sgw_addr));
+	//recv(s, &file, sizeof(file), 0);
 
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
     sendto(s, (const void *) &type, (size_t) sizeof(type), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
     sendto(s, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
-
 		if(server->sgw_addr.sin_port!=photo.source){
 			for(i=0; i< photo.size; i++){
 				sendto(s, (const void *) &file[i], (size_t) sizeof(file[i]), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));

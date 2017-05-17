@@ -70,7 +70,7 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
     send(photo.s_client, &photo, sizeof(photo), 0);
   }
 
-  if(photo.s_client!=server_port){
+  if(photo.source!=server_port){
     dest_file=fopen(photo.name, "wb");
     for(i=0; i< photo.size; i++){
       recv(s_gw, &c, sizeof(c), 0);
@@ -78,8 +78,6 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
     }
     fclose(dest_file);
   }
-
-  printf("HERE3\n");
 }
 
 void server_delete_photo(int s_gw, LinkedList ** photo_list, int server_port){
