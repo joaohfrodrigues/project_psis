@@ -65,7 +65,7 @@ void *handle_client(void *arg){
         //file[i]=c;
         fputc(c, dest_file);
         sendto(s_gw, (const void *) &c, (size_t) sizeof(c), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
-        sleep(0.05);
+        sleep(0.02);
         //if(i==photo.size-1)
           //recv(s_gw, &conf, sizeof(conf), 0);
         //printf("i=%d\n", i);

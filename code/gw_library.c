@@ -144,7 +144,8 @@ void gw_add_photo(int s, LinkedList **server_list){
 
 	printf("HERE4\n");
 
-	char file[photo.size];
+	char *file=(char *)malloc(photo.size*sizeof(char));
+	//char file[photo.size];
 
 	aux_server.sgw_addr.sin_port=photo.source;
 	aux2_server= (server_struct*) findItemLinkedList(*server_list,(Item) &aux_server, &compare_sgw_addr);
@@ -168,8 +169,11 @@ void gw_add_photo(int s, LinkedList **server_list){
 		if(server->sgw_addr.sin_port!=photo.source){
 			for(i=0; i< photo.size; i++){
 				sendto(s, (const void *) &file[i], (size_t) sizeof(file[i]), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
+				sleep(0.02);
 			}
 		}
+
+		//free(file);
   }
 }
 
