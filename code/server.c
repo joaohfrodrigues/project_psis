@@ -54,33 +54,29 @@ void *handle_client(void *arg){
       recv(s_client, &photo, sizeof(photo), 0);
       photo.source=sgw_addr.sin_port;
       photo.s_client=s_client;
-      sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
-      sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      char name[MESSAGE_LEN];
+      send(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0);
+      send(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0);
 
+      printf("photosize=%d\n", photo.size);
       dest_file=fopen(photo.name, "wb");
-      //char file[photo.size];
+      char *file=(char *)malloc(photo.size);
       int conf=0;
       for(i=0; i< photo.size; i++){
         recv(s_client, &c, sizeof(c), 0);
-        //file[i]=c;
         fputc(c, dest_file);
-        sendto(s_gw, (const void *) &c, (size_t) sizeof(c), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
-        sleep(0.02);
-        //if(i==photo.size-1)
-          //recv(s_gw, &conf, sizeof(conf), 0);
-        //printf("i=%d\n", i);
+        send(s_gw,&c,sizeof(c), 0);
+        //printf("i=%d\n", i);photo.
       }
-      //sendto(s_gw, (const void *) &file, (size_t) sizeof(file), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
-      printf("HERE\n");
       fclose(dest_file);
-      //server_add_photo(new_s, &photo_list);
+
     }else if(type==ADD_KEYWORD){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A KEYWORD*/
       handle_client_type=S_ADD_KEYWORD;
       recv(s_client, &m, sizeof(m), 0);
       m.source=sgw_addr.sin_port;
       m.s_client=s_client;
-      sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
-      sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      send(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0);
+      send(s_gw, (const void *) &m, (size_t) sizeof(m), 0);
     }else if(type==SEARCH_PHOTO){
       printf("calling function to search photos\n");
       server_search_photo(s_client, photo_list);
@@ -91,8 +87,8 @@ void *handle_client(void *arg){
       recv(s_client, &m, sizeof(m), 0);
       m.source=sgw_addr.sin_port;
       m.s_client=s_client;
-      sendto(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
-      sendto(s_gw, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &gateway_addr, sizeof(gateway_addr));
+      send(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0);
+      send(s_gw, (const void *) &m, (size_t) sizeof(m), 0);
     }else if(type==GET_PHOTO_NAME){
       printf("got here\n");
       server_get_photo_name(s_client, photo_list);
@@ -165,7 +161,7 @@ int main(int argc, char *argv[]){
   signal(SIGINT, terminate_ok);
 
   /* create socket gateway*/
-  s_gw = socket(AF_INET,SOCK_DGRAM,0);
+  s_gw = socket(AF_INET,SOCK_STREAM,0);
   if(s_gw == -1)
   {
     perror("Socket gateway not created.Error:");
@@ -188,6 +184,9 @@ int main(int argc, char *argv[]){
     return 1;
   }
 
+  if(connect(s_gw, (struct sockaddr *) &gateway_addr, sizeof(gateway_addr))==-1){
+    perror("connect ");
+  }
 
   /* create socket client*/
   s_server= socket(AF_INET,SOCK_STREAM,0);

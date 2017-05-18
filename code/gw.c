@@ -13,14 +13,18 @@
 
 #include "gw_library.h"
 
-int s_server, s_client, s_sync;
+int s_gw, s_client, s_sync;
 LinkedList *server_list;
+int n_servers=-1;
+int new_s[MAX_SERVERS];
 
 void terminate_ok(int n){
 	int in;
   close(s_client);
-	close(s_server);
+	close(s_gw);
 	close(s_sync);
+	for(int i=0; i<n_servers; i++)
+    close(new_s[i]);
 	exit(-1);
 }
 
@@ -29,22 +33,7 @@ void *thrd_server_fnc(void *arg){
   message m;
 	int type=0;
 	struct sockaddr_in gw_addr, client_addr;
-
-  s_server= socket(AF_INET,SOCK_DGRAM,0);
-  if(s_server == -1)
-    perror("s_server: Socket not created.Error:");
-
-  printf("s_server: Socket created\n");
-
-  gw_addr.sin_family = AF_INET;
-  gw_addr.sin_port = htons(3001); /*numero de porto*/
-  gw_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
-
-
-  if(bind(s_server,(const struct sockaddr*)&gw_addr,sizeof(gw_addr)) == -1)
-    perror("s_server: binding failed. Error:");
-
-  printf("s_server: Bind completed\n");
+	int s_server=new_s[n_servers];
 
   while(1){
     recv(s_server, &type, sizeof(type), 0);
@@ -132,19 +121,14 @@ void *thrd_client_fnc(void *arg){
 }*/
 
 int main(int argc, char *argv[]){
-	pthread_t thrd_sync, thrd_client, thrd_server;
+	pthread_t thrd_sync, thrd_client;
 	int error;
+	struct sockaddr_in gw_addr, client_addr;
+	pthread_t thrd_servers[MAX_SERVERS];
 
 	server_list=initLinkedList();
   /*signal handling*/
   signal(SIGINT, terminate_ok);
-
-	error = pthread_create(&thrd_server, NULL,thrd_server_fnc, NULL);
-  if(error != 0){
-    perror("pthread_create: ");
-    exit(-1);
-  }
-
 	/*error = pthread_create(&thrd_sync, NULL,thrd_sync_fnc, NULL);
 	if(error != 0){
 		perror("pthread_create: ");
@@ -157,7 +141,36 @@ int main(int argc, char *argv[]){
 		exit(-1);
 	}
 
-	while(1) {
+	s_gw= socket(AF_INET,SOCK_STREAM,0);
+	if(s_gw == -1)
+		perror("s_gw: Socket not created.Error:");
+
+	printf("s_gw: Socket created\n");
+
+	gw_addr.sin_family = AF_INET;
+	gw_addr.sin_port = htons(3001); /*numero de porto*/
+	gw_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
+
+
+	if(bind(s_gw,(const struct sockaddr*)&gw_addr,sizeof(gw_addr)) == -1)
+		perror("s_gw: binding failed. Error:");
+	printf("s_gw: Bind completed\n");
+
+	if(listen(s_gw, MAX_SERVERS) == -1){
+		perror("listen ");
+		exit(-1);
+	}
+
+	while(1){
+		new_s[n_servers+1]= accept(s_gw,NULL, NULL);
+		n_servers++;
+		printf("n_servers=%d new_s=%d\n",n_servers, new_s[n_servers]);
+		perror("accept");
+		error = pthread_create(&thrd_servers[n_servers], NULL,thrd_server_fnc, NULL);
+		if(error != 0){
+			perror("pthread_create: ");
+			exit(-1);
+		}
 	}
   exit(0);
 

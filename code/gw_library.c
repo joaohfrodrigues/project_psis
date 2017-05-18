@@ -87,6 +87,7 @@ void server_connecting(int s, LinkedList **server_list){
 	char test[MESSAGE_LEN];
 	char test2[MESSAGE_LEN];
 	int i;
+	new_server->s_server=s;
 
 /*WHEN SERVER_LIST IS NOT NULL, THERE IS ANOTHER SERVER, THEREFORE THE NEED TO REPLICATE THE LINKED LIST*/
 	if((*server_list)!=NULL){
@@ -142,9 +143,8 @@ void gw_add_photo(int s, LinkedList **server_list){
 	photo.id=id;
 	photo.nkey=0;
 
-	printf("HERE4\n");
-
 	char *file=(char *)malloc(photo.size*sizeof(char));
+	printf("file has size of %d\n", photo.size);
 	//char file[photo.size];
 
 	aux_server.sgw_addr.sin_port=photo.source;
@@ -152,24 +152,22 @@ void gw_add_photo(int s, LinkedList **server_list){
 	strcpy(test2, inet_ntoa(aux2_server->sgw_addr.sin_addr));
 	printf("ip: %s, port=%d\n", test2, aux2_server->sgw_addr.sin_port);
 
-	int conf=0;
+	int bytes=0;
 	for(i=0; i< photo.size; i++){
-		recv(s, &c, sizeof(c), 0);
+		bytes +=recv(s, &c, sizeof(c), 0);
 		file[i]=c;
 		//printf("i=%d\n", i);
 	}
-	conf=1;
-	//sendto(s, (const void *) &conf, (size_t) sizeof(conf), 0,(const struct sockaddr *) &(aux2_server->sgw_addr), (socklen_t) sizeof(aux2_server->sgw_addr));
-	//recv(s, &file, sizeof(file), 0);
+
+	printf("received %d bytes\n", bytes);
 
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
-    sendto(s, (const void *) &type, (size_t) sizeof(type), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
-    sendto(s, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
+    send(server->s_server, (const void *) &type, (size_t) sizeof(type), 0);
+    send(server->s_server, (const void *) &photo, (size_t) sizeof(photo), 0);
 		if(server->sgw_addr.sin_port!=photo.source){
 			for(i=0; i< photo.size; i++){
-				sendto(s, (const void *) &file[i], (size_t) sizeof(file[i]), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
-				sleep(0.02);
+				send(server->s_server, (const void *) &file[i], (size_t) sizeof(file[i]), 0);
 			}
 		}
 
@@ -187,8 +185,8 @@ void gw_add_keyword(int s, LinkedList **server_list){
 	//printf("src_port=%d\n", m.source);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
-    sendto(s, (const void *) &type, (size_t) sizeof(type), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
-    sendto(s, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
+    send(server->s_server, (const void *) &type, (size_t) sizeof(type), 0);
+    send(server->s_server, (const void *) &m, (size_t) sizeof(m), 0);
   }
 }
 
@@ -202,7 +200,7 @@ void gw_delete_photo(int s, LinkedList **server_list){
 	//printf("src_port=%d\n", m.source);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
-    sendto(s, (const void *) &type, (size_t) sizeof(type), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
-    sendto(s, (const void *) &m, (size_t) sizeof(m), 0,(const struct sockaddr *) &(server->sgw_addr), (socklen_t) sizeof(server->sgw_addr));
+    send(server->s_server, (const void *) &type, (size_t) sizeof(type), 0);
+    send(server->s_server, (const void *) &m, (size_t) sizeof(m), 0);
   }
 }
