@@ -50,6 +50,7 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
   FILE *dest_file;
   char c;
   int i=0;
+  char name[MESSAGE_LEN];
 
   recv(s_gw, &photo, sizeof(photo), 0);
   photo_struct *new_ph=(photo_struct *) malloc(sizeof(photo_struct));
@@ -70,14 +71,17 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
     send(photo.s_client, &photo, sizeof(photo), 0);
   }
 
-  if(photo.source!=server_port){
-    dest_file=fopen(photo.name, "wb");
-    for(i=0; i< photo.size; i++){
-      recv(s_gw, &c, sizeof(c), 0);
-      fputc(c, dest_file);
-    }
-    fclose(dest_file);
+  //itoa(photo.id, name, 10);
+  sprintf(name,"%d",photo.id); /*converts to decimal base*/
+  strcat(name, photo.name);
+  printf("photo_name in the database = %s\n", name);
+  dest_file=fopen(name, "wb");
+  for(i=0; i< photo.size; i++){
+    recv(s_gw, &c, sizeof(c), 0);
+    fputc(c, dest_file);
   }
+  fclose(dest_file);
+
 }
 
 void server_delete_photo(int s_gw, LinkedList ** photo_list, int server_port){

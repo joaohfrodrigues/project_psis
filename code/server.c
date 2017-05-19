@@ -54,21 +54,14 @@ void *handle_client(void *arg){
       recv(s_client, &photo, sizeof(photo), 0);
       photo.source=sgw_addr.sin_port;
       photo.s_client=s_client;
-      char name[MESSAGE_LEN];
       send(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0);
       send(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0);
 
       printf("photosize=%d\n", photo.size);
-      dest_file=fopen(photo.name, "wb");
-      char *file=(char *)malloc(photo.size);
-      int conf=0;
       for(i=0; i< photo.size; i++){
         recv(s_client, &c, sizeof(c), 0);
-        fputc(c, dest_file);
         send(s_gw,&c,sizeof(c), 0);
-        //printf("i=%d\n", i);photo.
       }
-      fclose(dest_file);
 
     }else if(type==ADD_KEYWORD){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A KEYWORD*/
       handle_client_type=S_ADD_KEYWORD;

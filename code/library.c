@@ -87,9 +87,15 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name){
 
 
   photo_file=fopen(file_name, "rb");
+
+  if(photo_file==NULL){
+    fprintf(stderr, "Error opening file --> %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+    return -1;
+  }
   int fd=fileno(photo_file);
   if (fd == -1){
-    fprintf(stderr, "Error opening file --> %s", strerror(errno));
+    fprintf(stderr, "Error opening file --> %s\n", strerror(errno));
     fclose(photo_file);
     exit(EXIT_FAILURE);
   }else{

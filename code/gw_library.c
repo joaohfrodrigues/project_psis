@@ -165,13 +165,8 @@ void gw_add_photo(int s, LinkedList **server_list){
 		server= (server_struct*) getItemLinkedList(aux);
     send(server->s_server, (const void *) &type, (size_t) sizeof(type), 0);
     send(server->s_server, (const void *) &photo, (size_t) sizeof(photo), 0);
-		if(server->sgw_addr.sin_port!=photo.source){
-			for(i=0; i< photo.size; i++){
-				send(server->s_server, (const void *) &file[i], (size_t) sizeof(file[i]), 0);
-			}
-		}
-
-		//free(file);
+		for(i=0; i< photo.size; i++)
+			send(server->s_server, (const void *) &file[i], (size_t) sizeof(file[i]), 0);
   }
 }
 
