@@ -216,7 +216,7 @@ void server_search_photo(int s, LinkedList * photo_list){
     printf("nothing found for keyword %s\n", m.buffer);
   }else{
     for(i=0; i<count; i++){
-      printf("photo_name=%s; photo_id=%d, i=%d\n", vector[i]->name, vector[i]->id, i);
+      printf("photo_name=%s; photo_id=%d\n", vector[i]->name, vector[i]->id);
       photos_id[i]= (uint32_t) vector[i]->id;
       send(s, &(photos_id[i]), sizeof(photos_id[i]), 0);
     }

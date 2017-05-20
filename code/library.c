@@ -236,19 +236,21 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
   message m;
   int type=SEARCH_PHOTO;
   strcpy(m.buffer, keyword);
-  int kw_photos;
+  int n_photos=0;
   uint32_t id;
 
   send(peer_socket, &type, sizeof(type), 0);
   // SENDS KEYWORD TO SEARCH AND RECEIVES NUMBER OF PHOTOS AND THE VECTOR
   send(peer_socket, &m, sizeof(m), 0);
-  recv(peer_socket, &kw_photos, sizeof(kw_photos), 0);
-  (*id_photos) = (uint32_t*) calloc(kw_photos, sizeof(uint32_t));
-  for(int i=0; i<kw_photos; i++){
+  recv(peer_socket, &n_photos, sizeof(n_photos), 0);
+  (*id_photos) = (uint32_t*) calloc(n_photos, sizeof(uint32_t));
+  printf("found %d matches for keyword %s\n", n_photos, keyword);
+  for(int i=0; i<n_photos; i++){
     recv(peer_socket, &(id), sizeof(id), 0);
     (*id_photos)[i]=id;
+    printf("photo_id=%d\n", (*id_photos)[i]);
   }
-  return kw_photos;
+  return n_photos;
 }
 
 int gallery_disconnect(int peer_socket){
