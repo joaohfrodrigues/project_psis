@@ -59,6 +59,9 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
   strcpy(new_ph->name, photo.name);
   new_ph->id=photo.id;
   new_ph->nkey=photo.nkey;
+  new_ph->source=photo.source;
+  new_ph->s_client=photo.s_client;
+  new_ph->size=photo.size;
 
   for(int i=0; i<photo.nkey; i++){
     strcpy(new_ph->keyword[i], photo.keyword[i]);
@@ -178,7 +181,7 @@ void server_get_photo(int s_client, LinkedList * photo_list){
   }
   sprintf(name,"%d",found_photo->id); /*converts to decimal base*/
   strcat(name, found_photo->name);
-
+  printf("filename on the server: %s\n", name);
   src_file=fopen(name, "rb");
 
   printf("File Size: \n%d bytes\n", found_photo->size);

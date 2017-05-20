@@ -15,7 +15,8 @@
 
 int s_gw, s_client, s_sync;
 LinkedList *server_list;
-int n_servers=-1;
+//int n_servers=-1;
+int n_servers;
 int new_s[MAX_SERVERS];
 
 void terminate_ok(int n){
@@ -125,7 +126,7 @@ int main(int argc, char *argv[]){
 	int error;
 	struct sockaddr_in gw_addr, client_addr;
 	pthread_t thrd_servers[MAX_SERVERS];
-
+	n_servers=-1;
 	server_list=initLinkedList();
   /*signal handling*/
   signal(SIGINT, terminate_ok);
@@ -153,7 +154,7 @@ int main(int argc, char *argv[]){
 
 
 	if(bind(s_gw,(const struct sockaddr*)&gw_addr,sizeof(gw_addr)) == -1)
-		perror("s_gw: binding failed. Error:");
+		perror("s_gw: binding failed. Error");
 	printf("s_gw: Bind completed\n");
 
 	if(listen(s_gw, MAX_SERVERS) == -1){

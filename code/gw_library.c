@@ -152,14 +152,10 @@ void gw_add_photo(int s, LinkedList **server_list){
 	strcpy(test2, inet_ntoa(aux2_server->sgw_addr.sin_addr));
 	printf("ip: %s, port=%d\n", test2, aux2_server->sgw_addr.sin_port);
 
-	int bytes=0;
 	for(i=0; i< photo.size; i++){
-		bytes +=recv(s, &c, sizeof(c), 0);
+		recv(s, &c, sizeof(c), 0);
 		file[i]=c;
-		//printf("i=%d\n", i);
 	}
-
-	printf("received %d bytes\n", bytes);
 
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);

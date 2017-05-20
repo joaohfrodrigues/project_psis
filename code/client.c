@@ -25,7 +25,7 @@ void terminate_ok(int n){
 int main(int argc, char *argv[]){
 	char buffer[MESSAGE_LEN];
 	int id=0;
-	char *name=(char *) malloc(MESSAGE_LEN*sizeof(char));
+	char *name=NULL;
 
   /*signal handling*/
   signal(SIGINT, terminate_ok);

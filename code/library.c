@@ -87,21 +87,19 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name){
 
   if(photo_file==NULL){
     fprintf(stderr, "Error opening file --> %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
-    return -1;
+    return 0;
   }
   int fd=fileno(photo_file);
   if (fd == -1){
     fprintf(stderr, "Error opening file --> %s\n", strerror(errno));
     fclose(photo_file);
-    exit(EXIT_FAILURE);
+    return 0;
   }else{
     //GET FILE STATS
     if (fstat(fd, &file_stat) < 0){
       fprintf(stderr, "Error fstat --> %s", strerror(errno));
        exit(EXIT_FAILURE);
     }
-    printf("File Size: \n%d bytes\n", file_stat.st_size);
     photo.size=file_stat.st_size;
 
     send(peer_socket, &type, sizeof(type), 0);
@@ -164,7 +162,7 @@ int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name
     printf("id not recognized or not present\n");
     return 0;
   }
-
+  (*photo_name)=(char *) malloc(strlen(m.buffer));
   printf("got %s\n", m.buffer);
   strcpy((*photo_name), m.buffer);
 
