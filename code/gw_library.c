@@ -97,6 +97,7 @@ void server_connecting(int s, LinkedList **server_list){
 
 		for(i=0; i<count_photos; i++){
 			recv(s, &photo, sizeof(photo), 0);
+			/*RECEIVE PHOTO DATA?*/
 			type=ADD_PHOTO;
 			sendto(s, (const void *) &type, sizeof(type), 0,(struct sockaddr *) &server_addr, server_addr_size);
 			sendto(s, (const void *) &photo, sizeof(photo), 0,(struct sockaddr *) &server_addr, server_addr_size);
@@ -194,4 +195,6 @@ void gw_delete_photo(int s, LinkedList **server_list){
     send(server->s_server, (const void *) &type, (size_t) sizeof(type), 0);
     send(server->s_server, (const void *) &m, (size_t) sizeof(m), 0);
   }
+
+	count_photos--;
 }

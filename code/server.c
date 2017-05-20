@@ -129,6 +129,7 @@ void *gw_connection(void *arg){
         photo= *((photo_struct *) getItemLinkedList(aux));
         sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, (socklen_t)sizeof(gateway_addr));
       }
+      /*SEND PHOTO DATA?*/
     }else if(gw_connection_type==DELETE_PHOTO){
       printf("gw->server:delete photo\n");
       server_delete_photo(s_gw, &photo_list, sgw_addr.sin_port);
