@@ -1,3 +1,12 @@
+/***************************************************************************
+* PSis-project 2016-17
+* by
+* João Rodrigues and Sara Vieira
+*
+* image_server.h
+* Header file with all the declarations and defines used in the project
+****************************************************************************/
+
 #define MESSAGE_LEN 100
 #define MAX_KEYWORDS 10
 #define MAX_CLIENTS 20

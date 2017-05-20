@@ -3,7 +3,7 @@
 * by
 * João Rodrigues and Sara Vieira
 *
-* gw_library.c
+* gw_library.h
 * Functions available for the gateway to use
 ****************************************************************************/
 #include "list.h"

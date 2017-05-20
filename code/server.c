@@ -1,3 +1,12 @@
+/***************************************************************************
+* PSis-project 2016-17
+* by
+* João Rodrigues and Sara Vieira
+*
+* server.c
+* Server process, with 1 thread per client and 1 thread to communicate with the gateway
+****************************************************************************/
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>

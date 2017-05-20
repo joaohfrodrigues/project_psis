@@ -3,7 +3,7 @@
 * by
 * João Rodrigues and Sara Vieira
 *
-* server_library.c
+* server_library.h
 * Functions available for the server to use
 ****************************************************************************/
 #include "list.h"

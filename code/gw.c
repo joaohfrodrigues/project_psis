@@ -1,3 +1,12 @@
+/***************************************************************************
+* PSis-project 2016-17
+* by
+* João Rodrigues and Sara Vieira
+*
+* gw.c
+* Gateway process with 1 thread per server and 1 thread to communicate with the clients
+****************************************************************************/
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
