@@ -73,8 +73,8 @@ void *handle_client(void *arg){
     }else if(type==SEARCH_PHOTO){
       printf("calling function to search photos\n");
       server_search_photo(s_client, photo_list);
-    }else if(type==SEARCH_KEYWORD){
-
+    }else if(type==GET_PHOTO){
+      server_get_photo(s_client, photo_list);
     }else if(type==DELETE_PHOTO){
       handle_client_type=S_DELETE_PHOTO;
       recv(s_client, &m, sizeof(m), 0);

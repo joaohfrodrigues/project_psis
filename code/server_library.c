@@ -158,6 +158,40 @@ void server_get_photo_name(int s_client, LinkedList * photo_list){
   send(s_client, &m, sizeof(m), 0);
 }
 
+void server_get_photo(int s_client, LinkedList * photo_list){
+  photo_struct photo;
+  photo_struct *found_photo;
+  FILE *src_file;
+  struct stat file_stat;
+  char name[MESSAGE_LEN];
+  char c;
+  int i;
+
+  recv(s_client, &photo, sizeof(photo), 0);
+
+  found_photo= (photo_struct*) findItemLinkedList(photo_list, (Item) &photo, &compare_id);
+
+  if(found_photo==NULL){
+    photo.id=-2;
+    send(s_client, &photo, sizeof(photo), 0);
+    return;
+  }
+  sprintf(name,"%d",found_photo->id); /*converts to decimal base*/
+  strcat(name, found_photo->name);
+
+  src_file=fopen(name, "rb");
+
+  printf("File Size: \n%d bytes\n", found_photo->size);
+
+  send(s_client, found_photo, sizeof(*found_photo), 0);
+
+  for(i=0; i<found_photo->size; i++){
+    c=fgetc(src_file);
+    send(s_client, &c, sizeof(c), 0);
+  }
+  fclose(src_file);
+}
+
 void server_search_photo(int s, LinkedList * photo_list){
   message m;
   photo_struct photo;

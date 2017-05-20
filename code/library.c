@@ -83,9 +83,6 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name){
   int i=0;
   struct stat file_stat;
 
-
-
-
   photo_file=fopen(file_name, "rb");
 
   if(photo_file==NULL){
@@ -118,9 +115,6 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name){
   fclose(photo_file);
 
   recv(peer_socket, &photo, sizeof(photo), 0);
-
-  printf("sucess\n");
-
   return photo.id;
 }
 
@@ -175,6 +169,43 @@ int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name
   strcpy((*photo_name), m.buffer);
 
   return m.port;
+}
+
+int gallery_get_photo(int peer_socket, uint32_t id_photo, char *file_name){
+  photo_struct photo;
+  int type=GET_PHOTO;
+  FILE *dest_file;
+  char c;
+  int i;
+
+  photo.id=id_photo;
+
+  if(id_photo <= 0){
+    printf("not a valid id (number > 0)\n");
+    return -1;
+  }
+
+  send(peer_socket, &type, sizeof(type), 0);
+  send(peer_socket, &photo, sizeof(photo), 0);
+  recv(peer_socket, &photo, sizeof(photo), 0);
+
+  if(photo.id==-2){
+    printf("id not recognized or not present\n");
+    return 0;
+  }
+
+  printf("got %s\n", photo.name);
+  strcpy(file_name, photo.name);
+
+  dest_file=fopen(file_name, "wb");
+  for(i=0; i< photo.size; i++){
+    recv(peer_socket, &c, sizeof(c), 0);
+    fputc(c, dest_file);
+  }
+  fclose(dest_file);
+
+
+  return 1;
 }
 
 int gallery_delete_photo(int peer_socket, uint32_t id_photo){

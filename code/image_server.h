@@ -19,9 +19,8 @@
 #define ADD_PHOTO 50
 #define ADD_KEYWORD 51
 #define SEARCH_PHOTO 52
-#define SEARCH_KEYWORD 53
+#define GET_PHOTO 53
 #define GET_PHOTO_NAME 54
-#define GET_PHOTO 55
 #define DELETE_PHOTO 56
 #define SYNC_PHOTO_LIST 57
 
