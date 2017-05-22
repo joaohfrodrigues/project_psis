@@ -50,9 +50,12 @@ void *handle_client(void *arg){
   char c;
   int s_client=new_s[n_clients];
   int i=0;
+
   //n_clients++; /*SELECT THE CORRECT SOCKET AND INCREMENT THE NUMBER OF CLIENTS*/
   printf("n_clients=%d, socket=%d\n", n_clients, s_client);
   printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
+
+
   while(1){
     /*receive message*/
     recv(s_client, &type, sizeof(type), 0);

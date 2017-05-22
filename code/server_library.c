@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <time.h>
+#include <pthread.h>
 
 
 #include "server_library.h"
@@ -52,6 +53,9 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
   int i=0;
   char name[MESSAGE_LEN];
 
+
+  pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
+
   recv(s_gw, &photo, sizeof(photo), 0);
   photo_struct *new_ph=(photo_struct *) malloc(sizeof(photo_struct));
   printf("adding photo, filename=%s;  id=%d;\n", photo.name, photo.id);
@@ -67,8 +71,11 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
     strcpy(new_ph->keyword[i], photo.keyword[i]);
   }
 
-
+  pthread_mutex_lock(&ph_list);
   (*photo_list)=insertUnsortedLinkedList((*photo_list), (Item) new_ph);
+  pthread_mutex_unlock(&ph_list);
+
+  pthread_mutex_destroy(&ph_list);
 
   if(photo.source==server_port){
     send(photo.s_client, &photo, sizeof(photo), 0);
@@ -92,10 +99,16 @@ void server_delete_photo(int s_gw, LinkedList ** photo_list, int server_port){
   photo_struct photo;
   recv(s_gw, &m, sizeof(m), 0);
 
+  pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
+
   photo.id=m.port;
-  printf("deleting photo\n", m.port);
+  printf("deleting photo\n" /*, m.port*/);
   m.port=1;
+  pthread_mutex_lock(&ph_list);
   (*photo_list)=deleteItemLinkedList((*photo_list), (Item) &photo, &m.port, &compare_id, &free_photo);
+  pthread_mutex_unlock(&ph_list);
+
+  pthread_mutex_destroy(&ph_list);
 
   if(m.source==server_port){
     send(m.s_client, &m.port, sizeof(m.port), 0);
@@ -108,8 +121,16 @@ void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
   int i=0;
   int test_value=0;
   photo_struct *new_key=(photo_struct *) malloc(sizeof(photo_struct));
+
+  pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
+
   new_key->id=m.port;
+
+  pthread_mutex_lock(&ph_list);
   new_key = (photo_struct *) findItemLinkedList(photo_list, (Item) new_key, &compare_id);
+  pthread_mutex_unlock(&ph_list);
+
+  pthread_mutex_destroy(&ph_list);
 
   if(new_key==NULL){
     m.port=-2;
@@ -148,8 +169,15 @@ void server_get_photo_name(int s_client, LinkedList * photo_list){
   photo_struct photo;
   photo_struct *found_photo;
 
+  pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
+
   photo.id=m.port;
+
+  pthread_mutex_lock(&ph_list);
   found_photo= (photo_struct*) findItemLinkedList(photo_list, (Item) &photo, &compare_id);
+  pthread_mutex_unlock(&ph_list);
+
+  pthread_mutex_destroy(&ph_list);
 
   if(found_photo==NULL){
     m.port=-2;
@@ -170,9 +198,15 @@ void server_get_photo(int s_client, LinkedList * photo_list){
   char c;
   int i;
 
+  pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
+
   recv(s_client, &photo, sizeof(photo), 0);
 
+  pthread_mutex_lock(&ph_list);
   found_photo= (photo_struct*) findItemLinkedList(photo_list, (Item) &photo, &compare_id);
+  pthread_mutex_unlock(&ph_list);
+
+  pthread_mutex_destroy(&ph_list);
 
   if(found_photo==NULL){
     photo.id=-2;
@@ -203,8 +237,16 @@ void server_search_photo(int s, LinkedList * photo_list){
   int i=0;
   uint32_t *photos_id = NULL;
 
+  pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
+
   strcpy(photo.keyword[0], m.buffer);
+
+  pthread_mutex_lock(&ph_list);
   photo_struct ** vector= (photo_struct **) findItemVectorLinkedList(photo_list, (Item) &photo, &compare_keywords, &count);
+  pthread_mutex_unlock(&ph_list);
+
+  pthread_mutex_destroy(&ph_list);
+
   printf("found %d matches for keyword %s\n", count, photo.keyword[0]);
 
   send(s, &count, sizeof(count), 0);
