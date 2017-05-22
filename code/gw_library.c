@@ -75,43 +75,52 @@ void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
 
 void server_connecting(int s, LinkedList **server_list){
   server_struct *new_server=(server_struct *) malloc(sizeof(server_struct));
-	struct sockaddr_in server_addr;
-	socklen_t server_addr_size;
-	photo_struct photo;
-	message m;
 	/*RECEBE O ENDEREÇO DO NOVO SERVIDOR*/
-  recvfrom(s, new_server, sizeof(*new_server), 0,(struct sockaddr *) &server_addr, &server_addr_size);
+  recv(s, new_server, sizeof(*new_server), 0);
 	server_struct *aux_server;
 	int type;
   //new_server->addr.sin_addr = server_addr.sin_addr;
 	char test[MESSAGE_LEN];
 	char test2[MESSAGE_LEN];
-	int i;
+
 	new_server->s_server=s;
+
+	strcpy(test, inet_ntoa(new_server->addr.sin_addr));
+	strcpy(test2, inet_ntoa(new_server->sgw_addr.sin_addr));
+	printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
+	printf("sgw server_port=%d, server ip=%s\n", new_server->sgw_addr.sin_port, test2);
 
 /*WHEN SERVER_LIST IS NOT NULL, THERE IS ANOTHER SERVER, THEREFORE THE NEED TO REPLICATE THE LINKED LIST*/
 	if((*server_list)!=NULL){
 		type=SYNC_PHOTO_LIST;
 		aux_server= (server_struct*) getItemLinkedList(*server_list);
-		sendto(s, (const void *) &type, sizeof(type), 0,(struct sockaddr *) &aux_server->sgw_addr, sizeof(aux_server->sgw_addr));
-
-		for(i=0; i<count_photos; i++){
-			recv(s, &photo, sizeof(photo), 0);
-			/*RECEIVE PHOTO DATA?*/
-			type=ADD_PHOTO;
-			sendto(s, (const void *) &type, sizeof(type), 0,(struct sockaddr *) &server_addr, server_addr_size);
-			sendto(s, (const void *) &photo, sizeof(photo), 0,(struct sockaddr *) &server_addr, server_addr_size);
-		}
+		send(aux_server->s_server, &type, sizeof(type), 0);
+		send(aux_server->s_server, &s, sizeof(s), 0);
 	}
 
-
-
   (*server_list)=insertUnsortedLinkedList((*server_list), (Item) new_server);
-	strcpy(test, inet_ntoa(new_server->addr.sin_addr));
-	strcpy(test2, inet_ntoa(new_server->sgw_addr.sin_addr));
+}
 
-  printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
-	printf("sgw server_port=%d, server ip=%s\n", new_server->sgw_addr.sin_port, test2);
+void gw_send_photo(int s){
+	photo_struct photo;
+	FILE *src_file;
+	int i, k;
+	char c;
+	int dest_s=0;
+	int type=0;
+
+	recv(s, &dest_s, sizeof(dest_s), 0);
+	for(i=0; i<count_photos; i++){
+		recv(s, &photo, sizeof(photo), 0);
+		type=ADD_PHOTO;
+		send(dest_s, (const void *) &type, sizeof(type), 0);
+		send(dest_s, (const void *) &photo, sizeof(photo), 0);
+
+		for(k=0; i< photo.size; i++){
+			recv(s, &c, sizeof(c), 0);
+			send(dest_s, &c, sizeof(c), 0);
+		}
+	}
 }
 
 void server_disconnecting(int s, LinkedList **server_list){

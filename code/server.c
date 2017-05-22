@@ -106,17 +106,24 @@ void *handle_client(void *arg){
 
 /*THREAD USED TO COMMUNICATE WITH THE GATEWAY*/
 void *gw_connection(void *arg){
-  struct sockaddr_in src_addr;
-  socklen_t src_addr_size;
   int gw_connection_type=0;
   int gw_m_type=S_CONNECT;
   char test[MESSAGE_LEN];
   LinkedList *aux=NULL;
-  photo_struct photo;
+  photo_struct *photo;
+  photo_struct photo_tosend;
+  FILE *server_file=NULL;
+  char name[MESSAGE_LEN];
+  char c;
+  int i=0;
+  int dest_s=0;
 
   strcpy(test, inet_ntoa(gateway_message.addr.sin_addr));
-  sendto(s_gw, (const void *) &gw_m_type, (size_t) sizeof(gw_m_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
-  sendto(s_gw, (const void *) &(gateway_message), (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t)sizeof(gateway_addr));
+  send(s_gw, (const void *) &gw_m_type, (size_t) sizeof(gw_m_type), 0);
+  send(s_gw, (const void *) &(gateway_message), (size_t) sizeof(gateway_message), 0);
+  strcpy(test, inet_ntoa(gateway_message.addr.sin_addr));
+  printf("server connecting server_port=%d, server ip=%s\n", gateway_message.addr.sin_port, test);
+  printf("sgw server_port=%d, server ip=%s\n", gateway_message.sgw_addr.sin_port, test);
   while(1){
     recv(s_gw, &gw_connection_type, sizeof(gw_connection_type), 0);
     if(gw_connection_type==ADD_PHOTO){
@@ -125,10 +132,23 @@ void *gw_connection(void *arg){
     }else if(gw_connection_type==ADD_KEYWORD){
       server_add_keyword(s_gw, photo_list, sgw_addr.sin_port);
     }else if(gw_connection_type==SYNC_PHOTO_LIST){
+      recv(s_gw, &dest_s, sizeof(dest_s), 0);
       for(aux=photo_list; aux!=NULL; aux=getNextNodeLinkedList(aux)){
-        photo= *((photo_struct *) getItemLinkedList(aux));
-        sendto(s_gw, (const void *) &photo, (size_t) sizeof(photo), 0,(const struct sockaddr *) &gateway_addr, (socklen_t)sizeof(gateway_addr));
+        gw_connection_type=S_SEND_PHOTO;
+        photo= (photo_struct *) getItemLinkedList(aux);
+        send(s_gw, &gw_connection_type, sizeof(gw_connection_type), 0);
+        send(s_gw, &dest_s, sizeof(dest_s), 0);
+        send(s_gw, photo, sizeof(*photo), 0);
+        sprintf(name,"%d",(*photo).id); /*converts to decimal base*/
+        strcat(name, (*photo).name);
+        server_file=fopen(name, "rb");
+        for(i=0; i< (*photo).size; i++){
+          c=fgetc(server_file);
+          send(s_gw, &c, sizeof(c), 0);
+        }
+        fclose(server_file);
       }
+
       /*SEND PHOTO DATA?*/
     }else if(gw_connection_type==DELETE_PHOTO){
       printf("gw->server:delete photo\n");

@@ -33,22 +33,24 @@ void terminate_ok(int n){
   close(s_client);
 	close(s_gw);
 	close(s_sync);
-	for(int i=0; i<n_servers; i++)
+	for(int i=0; i<n_servers-1; i++)
     close(new_s[i]);
 	exit(-1);
 }
 
 /*THIS THREAD HANDLES THE SERVERS*/
 void *thrd_server_fnc(void *arg){
-  message m;
 	int type=0;
-	struct sockaddr_in gw_addr, client_addr;
 	int s_server=new_s[n_servers];
+	int cura=0;
 
   while(1){
     recv(s_server, &type, sizeof(type), 0);
 		if(type==S_CONNECT){
+			printf("SOCKET=%d\n", s_server);
+			printf("thread %lu\n", pthread_self());
 			server_connecting(s_server, &server_list);
+			cura=1;
 		}else if(type==S_ADD_PHOTO){
 			gw_add_photo(s_server, &server_list);
 		}else if(type==S_ADD_KEYWORD){
@@ -57,6 +59,11 @@ void *thrd_server_fnc(void *arg){
 			gw_delete_photo(s_server, &server_list);
 		}else if(type==S_SERVER_DEATH){
 			server_disconnecting(s_server, &server_list);
+			printf("closing thread %lu\n", pthread_self());
+			//n_servers--;
+			pthread_exit(NULL);
+		}else if(type==S_SEND_PHOTO){
+			gw_send_photo(s_server);
 		}
   }
 }
