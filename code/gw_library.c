@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <time.h>
+#include <pthread.h>
 
 
 #include "gw_library.h"
@@ -50,8 +51,13 @@ void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
   socklen_t client_addr_size;
   message m_client;
 
+  pthread_rwlock_t s_list;
+  pthread_rwlock_init(&s_list, NULL);
+
   recvfrom(s, &m_client, sizeof(m_client), 0,(struct sockaddr *) &client_addr, &client_addr_size);
 
+
+  pthread_rwlock_wrlock(&s_list);
   if((*aux)==NULL || getNextNodeLinkedList(*aux)==NULL){
     (*aux)=(*server_list);
   }else{
@@ -59,6 +65,9 @@ void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
   }
 
   server_struct* client_server=(server_struct*) getItemLinkedList(*aux);
+
+  pthread_rwlock_unlock(&s_list);
+  pthread_rwlock_destroy(&s_list);
 
 	if(client_server==NULL){
 		m_client.port=0;
