@@ -58,7 +58,12 @@ void *handle_client(void *arg){
 
   while(1){
     /*receive message*/
-    recv(s_client, &type, sizeof(type), 0);
+    int pp=recv(s_client, &type, sizeof(type), 0);
+    if(pp<=0){
+        //n_clients--;
+        printf("closing thread %lu\n", pthread_self());
+        pthread_exit(NULL);
+    }
     /* process message */
     if(type==ADD_PHOTO){ /*WHAT TO DO WHEN THE CLIENT WANTS TO ADD A PHOTO*/
       FILE *dest_file;
@@ -213,9 +218,10 @@ int main(int argc, char *argv[]){
   if(connect(s_gw, (struct sockaddr *) &gateway_addr, sizeof(gateway_addr))==-1){
     perror("connect ");
   }
-
+  int reuse=1;
   /* create socket client*/
   s_server= socket(AF_INET,SOCK_STREAM,0);
+  setsockopt(s_server, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int));
   if(s_server == -1)
   {
     perror("Socket client not created.Error:");

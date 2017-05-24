@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
         printf("\nYou chose to search a photo!\n\nPlease insert the keyword to search for: " );
 				scanf("%s", buffer);
 				gallery_search_photo(peer_socket, buffer, &id_photos);
-		break;
+				break;
       case 4: /*DELETE PHOTO*/
         printf("\nYou chose to delete a photo!\n\nPlease insert the id of the photo to be deleted: " );
 				scanf("%d", &id);

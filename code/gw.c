@@ -158,7 +158,9 @@ int main(int argc, char *argv[]){
 		exit(-1);
 	}
 
+	int reuse=1;
 	s_gw= socket(AF_INET,SOCK_STREAM,0);
+	setsockopt(s_gw, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int));
 	if(s_gw == -1)
 		perror("s_gw: Socket not created.Error:");
 

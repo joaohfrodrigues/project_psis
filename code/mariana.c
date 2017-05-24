@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
 	uint32_t id=0;
 	char *name=NULL;
 	int input;
-	
+
 	uint32_t *id_photos=NULL;
 	int n_photos=0;
 	int i=0;
@@ -40,7 +40,9 @@ int main(int argc, char *argv[]){
 
 	peer_socket=gallery_connect(argv[1], 3000);
 
-	
-	id = gallery_add_photo(peer_socket, "sporting.png");
+	for(i=0; i<60; i++)
+		id = gallery_add_photo(peer_socket, "sporting.png");
+
+
 	exit(0);
 }
