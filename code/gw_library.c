@@ -83,9 +83,9 @@ void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
 }
 
 void server_connecting(int s, LinkedList **server_list){
-  server_struct *new_server=(server_struct *) malloc(sizeof(server_struct));
+  	server_struct *new_server=(server_struct *) malloc(sizeof(server_struct));
 	/*RECEBE O ENDEREÇO DO NOVO SERVIDOR*/
-  recv(s, new_server, sizeof(*new_server), 0);
+  	recv(s, new_server, sizeof(*new_server), 0);
 	server_struct *aux_server;
 	int type;
   //new_server->addr.sin_addr = server_addr.sin_addr;
@@ -107,7 +107,15 @@ void server_connecting(int s, LinkedList **server_list){
 		send(aux_server->s_server, &s, sizeof(s), 0);
 	}
 
-  (*server_list)=insertUnsortedLinkedList((*server_list), (Item) new_server);
+	pthread_rwlock_t s_list;
+  	pthread_rwlock_init(&s_list, NULL);
+
+  	pthread_rwlock_rdlock(&s_list);
+
+  	(*server_list)=insertUnsortedLinkedList((*server_list), (Item) new_server);
+
+  	pthread_rwlock_unlock(&s_list);
+  	pthread_rwlock_destroy(&s_list);
 }
 
 void gw_send_photo(int s){
@@ -140,7 +148,15 @@ void server_disconnecting(int s, LinkedList **server_list){
 	server_struct server;
 	server.addr.sin_port=port;
 
+	pthread_rwlock_t s_list;
+  	pthread_rwlock_init(&s_list, NULL);
+
+  	pthread_rwlock_rdlock(&s_list);
+
 	(*server_list)= deleteItemLinkedList((*server_list), (Item) &server, &ret_value, &compare_addr, &free_server);
+
+	pthread_rwlock_unlock(&s_list);
+  	pthread_rwlock_destroy(&s_list);
 
 	printf("deleted server with port %d\n", server.addr.sin_port);
 }
@@ -162,12 +178,20 @@ void gw_add_photo(int s, LinkedList **server_list){
 	photo.id=id;
 	photo.nkey=0;
 
+	pthread_rwlock_t s_list;
+  	pthread_rwlock_init(&s_list, NULL);
+
 	char *file=(char *)malloc(photo.size*sizeof(char));
 	printf("file has size of %d\n", photo.size);
 	//char file[photo.size];
 
 	aux_server.sgw_addr.sin_port=photo.source;
+
+	pthread_rwlock_wrlock(&s_list);
 	aux2_server= (server_struct*) findItemLinkedList(*server_list,(Item) &aux_server, &compare_sgw_addr);
+	pthread_rwlock_unlock(&s_list);
+	pthread_rwlock_destroy(&s_list);
+
 	strcpy(test2, inet_ntoa(aux2_server->sgw_addr.sin_addr));
 	printf("ip: %s, port=%d\n", test2, aux2_server->sgw_addr.sin_port);
 
