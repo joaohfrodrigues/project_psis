@@ -39,30 +39,33 @@ void terminate_ok(int n){
 void *thrd_server_fnc(void *socket){
 	int type=0;
 	int s_server=*(int *)(socket);
-	int cura=0;
 
   while(1){
     recv(s_server, &type, sizeof(type), 0);
-		if(type==S_CONNECT){
-			printf("SOCKET=%d\n", s_server);
-			printf("thread %lu\n", pthread_self());
-			server_connecting(s_server, &server_list);
-			cura=1;
-		}else if(type==S_ADD_PHOTO){
-			gw_add_photo(s_server, &server_list);
-		}else if(type==S_ADD_KEYWORD){
-			gw_add_keyword(s_server, &server_list);
-		}else if(type==S_DELETE_PHOTO){
-			gw_delete_photo(s_server, &server_list);
-		}else if(type==S_SERVER_DEATH){
-			server_disconnecting(s_server, &server_list);
-			printf("closing thread %lu\n", pthread_self());
-			//n_servers--;
-			close(s_server);
-			n_servers--;
-			pthread_exit(NULL);
-		}else if(type==S_SEND_PHOTO){
-			gw_send_photo(s_server);
+		switch(type){
+			case S_CONNECT:
+				server_connecting(s_server, &server_list);
+				break;
+			case S_ADD_PHOTO:
+				gw_add_photo(s_server, &server_list);
+				break;
+			case S_ADD_KEYWORD:
+				gw_add_keyword(s_server, &server_list);
+				break;
+			case S_DELETE_PHOTO:
+				gw_delete_photo(s_server, &server_list);
+				break;
+			case S_SERVER_DEATH:
+				server_disconnecting(s_server, &server_list);
+				close(s_server);
+				n_servers--;
+				pthread_exit(NULL);
+				break;
+			case S_SEND_PHOTO:
+				gw_send_photo(s_server);
+				break;
+			default:
+				break;
 		}
   }
 }

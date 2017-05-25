@@ -95,7 +95,6 @@ void server_connecting(int s, LinkedList **server_list){
 	new_server->s_server=s;
 
 	strcpy(test, inet_ntoa(new_server->addr.sin_addr));
-	strcpy(test2, inet_ntoa(new_server->sgw_addr.sin_addr));
 	printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
 
 /*WHEN SERVER_LIST IS NOT NULL, THERE IS ANOTHER SERVER, THEREFORE THE NEED TO REPLICATE THE LINKED LIST*/
