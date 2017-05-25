@@ -275,7 +275,7 @@ LinkedList * deleteItemLinkedList(LinkedList * head, Item item, int *ret, int (*
   }
 
   for(aux = head; aux != NULL; aux = aux->next){
-    if((* comparisonItemFnt)(aux->this, item) && aux==head){
+    if(aux==head && (* comparisonItemFnt)(aux->this, item)){
       if(aux->next==NULL){
         (* freeItemFnt)(aux->this);
         free(aux);
@@ -287,7 +287,7 @@ LinkedList * deleteItemLinkedList(LinkedList * head, Item item, int *ret, int (*
         free(temp);
         return aux;
       }
-    }else if((* comparisonItemFnt)(aux->next->this, item) && aux->next->next== NULL){
+    }else if(aux->next->next== NULL && (* comparisonItemFnt)(aux->next->this, item)){
       temp=aux->next;
       aux->next=NULL;
       (* freeItemFnt)(temp->this);

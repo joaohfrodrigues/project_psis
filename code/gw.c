@@ -55,12 +55,12 @@ void *thrd_server_fnc(void *socket){
 			case S_DELETE_PHOTO:
 				gw_delete_photo(s_server, &server_list);
 				break;
-			case S_SERVER_DEATH:
+			/*case S_SERVER_DEATH:
 				server_disconnecting(s_server, &server_list);
 				close(s_server);
 				n_servers--;
 				pthread_exit(NULL);
-				break;
+				break;*/
 			case S_SEND_PHOTO:
 				gw_send_photo(s_server);
 				break;
@@ -98,11 +98,14 @@ void *thrd_client_fnc(void *arg){
 }
 
 
-/*void *thrd_sync_fnc(void *arg){
-	int total, alive;
+void *thrd_sync_fnc(void *arg){
+	int alive=0;
 	LinkedList *aux;
 	server_struct *server=NULL;
 	struct sockaddr_in gw_addr;
+	int status=0;
+	server_struct salvador;
+	int ret_val=0;
 
 	s_sync= socket(AF_INET,SOCK_DGRAM,0);
 	if(s_sync == -1)
@@ -116,28 +119,31 @@ void *thrd_client_fnc(void *arg){
 
 	if(bind(s_sync,(const struct sockaddr*)&gw_addr,sizeof(gw_addr)) == -1)
 		perror("s_sync: binding failed. Error:");
-
 	printf("s_sync: Bind completed\n");
 
 	while(1){
 		alive=0;
-		total=0;
-		sleep(10);
 		for(aux=server_list; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
+			status=0;
 			server=(server_struct*) getItemLinkedList(aux);
-			sendto(s_sync, &alive, sizeof(alive), 0,(struct sockaddr *) &(server->addr), (socklen_t) sizeof(server->addr));
-			sleep(0.5);
-			if(read(s_sync, &alive, sizeof(alive))<=0){
-				deleteItemLinkedList(server_list, aux,NULL, compare_addr);
-				total--;
-				printf("deleting server...\n");
+			sendto(s_sync, &status, sizeof(status), 0,(struct sockaddr *) &(server->sync_addr), (socklen_t) sizeof(server->sync_addr));
+			usleep(5000);
+			if(recv(s_sync, &status, sizeof(status), MSG_DONTWAIT)>=0){
+				alive++;
+				server->lives=3;
 			}else{
-				total++;
+				server->lives--;
+			}
+			if(server->lives==0){
+				printf("disconnecting server with socket number %d\n", server->s_server);
+				server_list=deleteItemLinkedList(server_list, (Item) server, &ret_val, &compare_addr, &free_server);
+				aux=server_list;
+				alive--;
+				n_servers--;
 			}
 		}
-		printf("There are %d ALIVE servers, port=%d\n", alive, server->addr.sin_port);
 	}
-}*/
+}
 
 int main(int argc, char *argv[]){
 	pthread_t thrd_sync, thrd_client;
@@ -160,12 +166,17 @@ int main(int argc, char *argv[]){
 		exit(-1);
 	}
 
+	error = pthread_create(&thrd_sync, NULL,thrd_sync_fnc, NULL);
+	if(error != 0){
+		perror("pthread_create: ");
+		exit(-1);
+	}
+
 	int reuse=1;
 	s_gw= socket(AF_INET,SOCK_STREAM,0);
 	setsockopt(s_gw, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int));
 	if(s_gw == -1)
 		perror("s_gw: Socket not created.Error:");
-
 	printf("s_gw: Socket created\n");
 
 	gw_addr.sin_family = AF_INET;

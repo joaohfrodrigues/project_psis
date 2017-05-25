@@ -24,21 +24,44 @@
 //#include "image_server.h"
 #include "server_library.h"
 
-int s_gw, s_server;
-struct sockaddr_in server_addr, gateway_addr, client_addr, sgw_addr;
+int s_gw, s_server, s_sync;
+struct sockaddr_in sync_addr, server_addr, client_addr, sgw_addr;
 LinkedList *photo_list;
 server_struct gateway_message;
 int n_clients=0;
 //socklen_t gateway_addr_size;
 
-/*void *sync_fnc(void *arg){
+void *sync_fnc(void *arg){
+  int reuse=1;
+  int alive=1;
+  int receive;
+  struct sockaddr_in gw_addr;
+
+  s_sync= socket(AF_INET,SOCK_DGRAM,0);
+  setsockopt(s_sync, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int));
+  if(s_sync == -1)
+    perror("Socket sync not created.Error:");
+  printf("Socket sync created\n");
+
+  sync_addr.sin_family = AF_INET;
+  sync_addr.sin_port = htons(3100+getpid()); /*numero de porto*/
+  sync_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
+
+  if(bind(s_sync,(const struct sockaddr*)&sync_addr,sizeof(sync_addr)) == -1)
+    perror("s_sync: binding failed. Error:");
+  printf("s_sync: Bind completed\n");
+
+  gateway_message.sync_addr=sync_addr;
+
+  gw_addr.sin_family = AF_INET;
+  gw_addr.sin_port = htons(3003);
+  gw_addr.sin_addr.s_addr = INADDR_ANY;
+
   while(1){
-    int alive;
-    recv(s_gw, &alive, sizeof(alive), 0);
-    alive=1;
-    sendto(s_gw, (const void *) &alive, (size_t) sizeof(alive), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
+    recv(s_sync, &receive, sizeof(receive), 0);
+    sendto(s_sync, &alive, sizeof(alive), 0, (const struct sockaddr *) &gw_addr, sizeof(gw_addr));
   }
-}*/
+}
 
 void *handle_client(void *socket){
 
@@ -172,8 +195,8 @@ void *gw_connection(void *arg){
 void terminate_ok(int n){
 	int gw_m_type=S_SERVER_DEATH;
   int port=server_addr.sin_port;
-  sendto(s_gw, (const void *) &gw_m_type, (size_t) sizeof(gw_m_type), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
-  sendto(s_gw, (const void *) &(port), (size_t) sizeof(port), 0,(const struct sockaddr *) &gateway_addr, (socklen_t)sizeof(gateway_addr));
+  sendto(s_gw, (const void *) &gw_m_type, (size_t) sizeof(gw_m_type), 0,(const struct sockaddr *) &sgw_addr, (socklen_t) sizeof(sgw_addr));
+  sendto(s_gw, (const void *) &(port), (size_t) sizeof(port), 0,(const struct sockaddr *) &sgw_addr, (socklen_t)sizeof(sgw_addr));
   close(s_gw);
   close(s_server);
   //freeLinkedList(photo_list, &free_photo);
@@ -235,6 +258,13 @@ int main(int argc, char *argv[]){
   gateway_message.addr=server_addr;
   gateway_message.sgw_addr=sgw_addr;
   inet_aton(argv[1], &gateway_message.addr.sin_addr);
+  gateway_message.lives=3;
+
+  error = pthread_create(&thrd_sync, NULL,sync_fnc, NULL);
+  if(error != 0){
+    perror("pthread_create: ");
+    exit(-1);
+  }
 
   error = pthread_create(&thrd_gw, NULL,gw_connection, NULL);
   if(error != 0){

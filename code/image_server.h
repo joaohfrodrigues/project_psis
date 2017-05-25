@@ -49,8 +49,10 @@ typedef struct server_struct{
     //int health;
     struct sockaddr_in addr;
     struct sockaddr_in sgw_addr;
+    struct sockaddr_in sync_addr;
     int nclients;
     int s_server;
+    int lives;
 } server_struct;
 
 typedef struct photo_struct{
