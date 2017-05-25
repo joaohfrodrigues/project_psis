@@ -98,7 +98,7 @@ void *thrd_client_fnc(void *arg){
 }
 
 
-void *thrd_sync_fnc(void *arg){
+void *machine_that_goes_ping(void *arg){
 	int alive=0;
 	LinkedList *aux;
 	server_struct *server=NULL;
@@ -151,14 +151,8 @@ int main(int argc, char *argv[]){
 	struct sockaddr_in gw_addr, client_addr;
 	pthread_t thrd_servers;
 	server_list=initLinkedList();
-  /*signal handling*/
   signal(SIGINT, terminate_ok);
 	int new_s;
-	/*error = pthread_create(&thrd_sync, NULL,thrd_sync_fnc, NULL);
-	if(error != 0){
-		perror("pthread_create: ");
-		exit(-1);
-	}*/
 
 	error = pthread_create(&thrd_client, NULL,thrd_client_fnc, NULL);
 	if(error != 0){
@@ -166,7 +160,7 @@ int main(int argc, char *argv[]){
 		exit(-1);
 	}
 
-	error = pthread_create(&thrd_sync, NULL,thrd_sync_fnc, NULL);
+	error = pthread_create(&thrd_sync, NULL,machine_that_goes_ping, NULL);
 	if(error != 0){
 		perror("pthread_create: ");
 		exit(-1);
