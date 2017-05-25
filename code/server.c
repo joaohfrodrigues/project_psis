@@ -48,6 +48,9 @@ void *handle_client(void *arg){
   message m;
   photo_struct photo;
   char c;
+  if(n_clients==20){
+
+  }
   int s_client=new_s[n_clients];
   int i=0;
 
@@ -207,13 +210,15 @@ int main(int argc, char *argv[]){
 
   sgw_addr.sin_family = AF_INET;
   sgw_addr.sin_port = htons(3100+getpid());; /*numero de porto*/
-  inet_aton(argv[1], &sgw_addr.sin_addr);
+  sgw_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
 
   if(bind(s_gw,(const struct sockaddr*)&sgw_addr,sizeof(sgw_addr)) == -1)
   {
     perror("binding failed. Error:");
     return 1;
   }
+
+  //inet_aton(argv[1], &sgw_addr.sin_addr);
 
   if(connect(s_gw, (struct sockaddr *) &gateway_addr, sizeof(gateway_addr))==-1){
     perror("connect ");
