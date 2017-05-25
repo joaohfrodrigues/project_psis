@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
 
 	peer_socket=gallery_connect(argv[1], 3000);
 
-	for(i=0; i<60; i++)
+
 		id = gallery_add_photo(peer_socket, "sporting.png");
 
 

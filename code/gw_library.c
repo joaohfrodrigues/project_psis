@@ -97,7 +97,6 @@ void server_connecting(int s, LinkedList **server_list){
 	strcpy(test, inet_ntoa(new_server->addr.sin_addr));
 	strcpy(test2, inet_ntoa(new_server->sgw_addr.sin_addr));
 	printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
-	printf("sgw server_port=%d, server ip=%s\n", new_server->sgw_addr.sin_port, test2);
 
 /*WHEN SERVER_LIST IS NOT NULL, THERE IS ANOTHER SERVER, THEREFORE THE NEED TO REPLICATE THE LINKED LIST*/
 	if((*server_list)!=NULL){
@@ -173,7 +172,6 @@ void gw_add_photo(int s, LinkedList **server_list){
   server_struct aux_server;
 	server_struct *aux2_server;
   recv(s, &photo, sizeof(photo), 0);
-	char test2[MESSAGE_LEN];
 	//printf("src_port=%d\n", photo.source);
 	photo.id=id;
 	photo.nkey=0;
@@ -191,9 +189,6 @@ void gw_add_photo(int s, LinkedList **server_list){
 	aux2_server= (server_struct*) findItemLinkedList(*server_list,(Item) &aux_server, &compare_sgw_addr);
 	pthread_rwlock_unlock(&s_list);
 	pthread_rwlock_destroy(&s_list);
-
-	strcpy(test2, inet_ntoa(aux2_server->sgw_addr.sin_addr));
-	printf("ip: %s, port=%d\n", test2, aux2_server->sgw_addr.sin_port);
 
 	for(i=0; i< photo.size; i++){
 		recv(s, &c, sizeof(c), 0);

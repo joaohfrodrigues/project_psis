@@ -25,23 +25,20 @@
 int s_gw, s_client, s_sync;
 LinkedList *server_list;
 //int n_servers=-1;
-int n_servers;
-int new_s[MAX_SERVERS];
+int n_servers=0;
 
 void terminate_ok(int n){
 	int in;
   close(s_client);
 	close(s_gw);
 	close(s_sync);
-	for(int i=0; i<n_servers-1; i++)
-    close(new_s[i]);
 	exit(-1);
 }
 
 /*THIS THREAD HANDLES THE SERVERS*/
-void *thrd_server_fnc(void *arg){
+void *thrd_server_fnc(void *socket){
 	int type=0;
-	int s_server=new_s[n_servers];
+	int s_server=*(int *)(socket);
 	int cura=0;
 
   while(1){
@@ -61,6 +58,8 @@ void *thrd_server_fnc(void *arg){
 			server_disconnecting(s_server, &server_list);
 			printf("closing thread %lu\n", pthread_self());
 			//n_servers--;
+			close(s_server);
+			n_servers--;
 			pthread_exit(NULL);
 		}else if(type==S_SEND_PHOTO){
 			gw_send_photo(s_server);
@@ -141,11 +140,11 @@ int main(int argc, char *argv[]){
 	pthread_t thrd_sync, thrd_client;
 	int error;
 	struct sockaddr_in gw_addr, client_addr;
-	pthread_t thrd_servers[MAX_SERVERS];
-	n_servers=-1;
+	pthread_t thrd_servers;
 	server_list=initLinkedList();
   /*signal handling*/
   signal(SIGINT, terminate_ok);
+	int new_s;
 	/*error = pthread_create(&thrd_sync, NULL,thrd_sync_fnc, NULL);
 	if(error != 0){
 		perror("pthread_create: ");
@@ -181,11 +180,11 @@ int main(int argc, char *argv[]){
 	}
 
 	while(1){
-		new_s[n_servers+1]= accept(s_gw,NULL, NULL);
+		new_s= accept(s_gw,NULL, NULL);
 		n_servers++;
-		printf("n_servers=%d new_s=%d\n",n_servers, new_s[n_servers]);
+		printf("n_servers=%d new_s=%d\n",n_servers, new_s);
 		perror("accept");
-		error = pthread_create(&thrd_servers[n_servers], NULL,thrd_server_fnc, NULL);
+		error = pthread_create(&thrd_servers, NULL,thrd_server_fnc, (void *) &new_s);
 		if(error != 0){
 			perror("pthread_create: ");
 			exit(-1);

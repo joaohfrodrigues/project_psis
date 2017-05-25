@@ -28,8 +28,7 @@ int s_gw, s_server;
 struct sockaddr_in server_addr, gateway_addr, client_addr, sgw_addr;
 LinkedList *photo_list;
 server_struct gateway_message;
-int n_clients=-1;
-int new_s[MAX_CLIENTS];
+int n_clients=0;
 //socklen_t gateway_addr_size;
 
 /*void *sync_fnc(void *arg){
@@ -41,21 +40,18 @@ int new_s[MAX_CLIENTS];
   }
 }*/
 
-void *handle_client(void *arg){
+void *handle_client(void *socket){
 
   int type=0;
   int handle_client_type=0;
   message m;
   photo_struct photo;
   char c;
-  if(n_clients==20){
-
-  }
-  int s_client=new_s[n_clients];
+  //(int *) (socket);
+  int s_client=*(int *)(socket) ;
   int i=0;
 
   //n_clients++; /*SELECT THE CORRECT SOCKET AND INCREMENT THE NUMBER OF CLIENTS*/
-  printf("n_clients=%d, socket=%d\n", n_clients, s_client);
   printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
 
 
@@ -106,8 +102,9 @@ void *handle_client(void *arg){
       printf("got here\n");
       server_get_photo_name(s_client, photo_list);
     }else if(type==CLIENT_DEATH){
-      //n_clients--;
+      n_clients--;
       printf("closing thread %lu\n", pthread_self());
+      close(s_client);
       pthread_exit(NULL);
     }
 
@@ -176,8 +173,6 @@ void terminate_ok(int n){
   sendto(s_gw, (const void *) &(port), (size_t) sizeof(port), 0,(const struct sockaddr *) &gateway_addr, (socklen_t)sizeof(gateway_addr));
   close(s_gw);
   close(s_server);
-  for(int i=0; i<n_clients; i++)
-    close(new_s[i]);
   //freeLinkedList(photo_list, &free_photo);
 	exit(-1);
 	//}
@@ -185,9 +180,10 @@ void terminate_ok(int n){
 
 int main(int argc, char *argv[]){
   int error;
-  pthread_t thrd_client[MAX_CLIENTS];
+  pthread_t thrd_client;
   pthread_t thrd_sync, thrd_gw;
   int i=0;
+  int new_s;
 
   photo_list=initLinkedList();
 
@@ -266,11 +262,11 @@ int main(int argc, char *argv[]){
   }
 
   while(1){
-    new_s[n_clients+1]= accept(s_server,NULL, NULL);
+    new_s= accept(s_server,NULL, NULL);
     n_clients++;
-    printf("n_clients=%d new_s=%d\n",n_clients, new_s[n_clients]);
+    printf("n_clients=%d new_s=%d\n",n_clients, new_s);
     perror("accept");
-    error = pthread_create(&thrd_client[n_clients], NULL,handle_client, NULL);
+    error = pthread_create(&thrd_client, NULL,handle_client, (void *) &new_s);
   	if(error != 0){
   		perror("pthread_create: ");
   		exit(-1);
