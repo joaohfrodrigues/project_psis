@@ -83,9 +83,11 @@ void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
 }
 
 void server_connecting(int s, LinkedList **server_list){
-  	server_struct *new_server=(server_struct *) malloc(sizeof(server_struct));
+	struct sockaddr_in server_addr;
+	socklen_t server_addr_size;
+  server_struct *new_server=(server_struct *) malloc(sizeof(server_struct));
 	/*RECEBE O ENDEREÇO DO NOVO SERVIDOR*/
-  	recv(s, new_server, sizeof(*new_server), 0);
+  recvfrom(s, new_server, sizeof(*new_server), 0,(struct sockaddr *) &server_addr, &server_addr_size);
 	server_struct *aux_server;
 	int type;
   //new_server->addr.sin_addr = server_addr.sin_addr;
@@ -93,8 +95,9 @@ void server_connecting(int s, LinkedList **server_list){
 	char test2[MESSAGE_LEN];
 
 	new_server->s_server=s;
-
+	//new_server->addr.sin_addr=server_addr.sin_addr;
 	strcpy(test, inet_ntoa(new_server->addr.sin_addr));
+	//inet_aton(test, &new_server->addr.sin_addr);
 	printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
 
 /*WHEN SERVER_LIST IS NOT NULL, THERE IS ANOTHER SERVER, THEREFORE THE NEED TO REPLICATE THE LINKED LIST*/
