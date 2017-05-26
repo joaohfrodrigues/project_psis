@@ -50,8 +50,6 @@ void *sync_fnc(void *arg){
   //sync_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
   inet_aton(server_ip, &sync_addr.sin_addr);
 
-  printf("server_ip=%s\n", ip);
-
   if(bind(s_sync,(const struct sockaddr*)&sync_addr,sizeof(sync_addr)) == -1)
     perror("s_sync: binding failed. Error:");
   printf("s_sync: Bind completed\n");
