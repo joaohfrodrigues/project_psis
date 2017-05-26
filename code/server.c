@@ -45,7 +45,8 @@ void *sync_fnc(void *arg){
 
   sync_addr.sin_family = AF_INET;
   sync_addr.sin_port = htons(3100+getpid()); /*numero de porto*/
-  sync_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
+  //sync_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
+  inet_aton(argv[2], &sync_addr.addr.sin_addr);
 
   if(bind(s_sync,(const struct sockaddr*)&sync_addr,sizeof(sync_addr)) == -1)
     perror("s_sync: binding failed. Error:");
