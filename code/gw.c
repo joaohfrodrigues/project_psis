@@ -128,7 +128,7 @@ void *machine_that_goes_ping(void *arg){
 			server=(server_struct*) getItemLinkedList(aux);
 			sendto(s_sync, &status, sizeof(status), 0,(struct sockaddr *) &(server->sync_addr), (socklen_t) sizeof(server->sync_addr));
 			//usleep(500000);
-			sleep(3);
+			sleep(2);
 			if(recv(s_sync, &status, sizeof(status), MSG_DONTWAIT)>=0){
 				alive++;
 				server->lives=3;

@@ -63,7 +63,7 @@ void *sync_fnc(void *arg){
 
   while(1){
     recv(s_sync, &receive, sizeof(receive), 0);
-    printf("receiving\n");
+    usleep(50000);
     sendto(s_sync, &alive, sizeof(alive), 0, (const struct sockaddr *) &gw_addr, sizeof(gw_addr));
   }
 }
