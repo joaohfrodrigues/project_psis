@@ -127,13 +127,15 @@ void *machine_that_goes_ping(void *arg){
 			status=0;
 			server=(server_struct*) getItemLinkedList(aux);
 			sendto(s_sync, &status, sizeof(status), 0,(struct sockaddr *) &(server->sync_addr), (socklen_t) sizeof(server->sync_addr));
-			usleep(500000);
+			//usleep(500000);
+			sleep(2);
 			if(recv(s_sync, &status, sizeof(status), MSG_DONTWAIT)>=0){
 				alive++;
 				server->lives=3;
 			}else{
 				server->lives--;
 			}
+			printf("lives = %d\n", server->lives);
 			if(server->lives==0){
 				printf("disconnecting server with socket number %d\n", server->s_server);
 				server_list=deleteItemLinkedList(server_list, (Item) server, &ret_val, &compare_addr, &free_server);
