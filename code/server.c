@@ -29,6 +29,7 @@ struct sockaddr_in sync_addr, server_addr, client_addr, sgw_addr;
 LinkedList *photo_list;
 server_struct gateway_message;
 int n_clients=0;
+char ip[MESSAGE_LEN];
 //socklen_t gateway_addr_size;
 
 void *sync_fnc(void *arg){
@@ -46,7 +47,7 @@ void *sync_fnc(void *arg){
   sync_addr.sin_family = AF_INET;
   sync_addr.sin_port = htons(3100+getpid()); /*numero de porto*/
   //sync_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
-  inet_aton(argv[2], &sync_addr.addr.sin_addr);
+  inet_aton(ip, &sync_addr.sin_addr);
 
   if(bind(s_sync,(const struct sockaddr*)&sync_addr,sizeof(sync_addr)) == -1)
     perror("s_sync: binding failed. Error:");
@@ -259,6 +260,7 @@ int main(int argc, char *argv[]){
   gateway_message.addr=server_addr;
   gateway_message.sgw_addr=sgw_addr;
   inet_aton(argv[2], &gateway_message.addr.sin_addr);
+  strcpy(ip, argv[2]);
   gateway_message.lives=3;
 
   error = pthread_create(&thrd_sync, NULL,sync_fnc, NULL);
