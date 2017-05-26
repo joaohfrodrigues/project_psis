@@ -257,7 +257,7 @@ int main(int argc, char *argv[]){
 
   gateway_message.addr=server_addr;
   gateway_message.sgw_addr=sgw_addr;
-  inet_aton(argv[1], &gateway_message.addr.sin_addr);
+  inet_aton(argv[2], &gateway_message.addr.sin_addr);
   gateway_message.lives=3;
 
   error = pthread_create(&thrd_sync, NULL,sync_fnc, NULL);
