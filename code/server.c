@@ -29,7 +29,8 @@ struct sockaddr_in sync_addr, server_addr, client_addr, sgw_addr;
 LinkedList *photo_list;
 server_struct gateway_message;
 int n_clients=0;
-char ip[MESSAGE_LEN];
+char server_ip[MESSAGE_LEN];
+char gw_ip[MESSAGE_LEN];
 //socklen_t gateway_addr_size;
 
 void *sync_fnc(void *arg){
@@ -47,7 +48,7 @@ void *sync_fnc(void *arg){
   sync_addr.sin_family = AF_INET;
   sync_addr.sin_port = htons(3100+getpid()); /*numero de porto*/
   //sync_addr.sin_addr.s_addr = INADDR_ANY; /*IP*/
-  inet_aton(ip, &sync_addr.sin_addr);
+  inet_aton(server_ip, &sync_addr.sin_addr);
 
   printf("server_ip=%s\n", ip);
 
@@ -59,7 +60,8 @@ void *sync_fnc(void *arg){
 
   gw_addr.sin_family = AF_INET;
   gw_addr.sin_port = htons(3003);
-  gw_addr.sin_addr.s_addr = INADDR_ANY;
+  //gw_addr.sin_addr.s_addr = INADDR_ANY;
+  inet_aton(gw_ip, &gw_addr.sin_addr);
 
   while(1){
     recv(s_sync, &receive, sizeof(receive), 0);
@@ -215,6 +217,9 @@ int main(int argc, char *argv[]){
   int i=0;
   int new_s;
 
+  strcpy(server_ip, argv[2]);
+  strcpy(gw_ip, argv[1]);
+
   photo_list=initLinkedList();
 
   /*signal handling*/
@@ -262,7 +267,6 @@ int main(int argc, char *argv[]){
   gateway_message.addr=server_addr;
   gateway_message.sgw_addr=sgw_addr;
   inet_aton(argv[2], &gateway_message.addr.sin_addr);
-  strcpy(ip, argv[2]);
   gateway_message.lives=3;
 
   error = pthread_create(&thrd_sync, NULL,sync_fnc, NULL);
