@@ -98,6 +98,11 @@ void server_connecting(int s, LinkedList **server_list){
 	//inet_aton(test, &new_server->addr.sin_addr);
 	printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
 
+	pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
+
+
+  	pthread_mutex_lock(&s_list);
+
 /*WHEN SERVER_LIST IS NOT NULL, THERE IS ANOTHER SERVER, THEREFORE THE NEED TO REPLICATE THE LINKED LIST*/
 	if((*server_list)!=NULL){
 		type=SYNC_PHOTO_LIST;
@@ -106,15 +111,10 @@ void server_connecting(int s, LinkedList **server_list){
 		send(aux_server->s_server, &s, sizeof(s), 0);
 	}
 
-	pthread_rwlock_t s_list;
-  	pthread_rwlock_init(&s_list, NULL);
-
-  	pthread_rwlock_rdlock(&s_list);
-
   	(*server_list)=insertUnsortedLinkedList((*server_list), (Item) new_server);
 
-  	pthread_rwlock_unlock(&s_list);
-  	pthread_rwlock_destroy(&s_list);
+  	pthread_mutex_unlock(&s_list);
+  	pthread_mutex_destroy(&s_list);
 }
 
 void gw_send_photo(int s){
