@@ -97,12 +97,15 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
 void server_delete_photo(int s_gw, LinkedList ** photo_list, int server_port){
   message m;
   photo_struct photo;
+  int status=0;
   recv(s_gw, &m, sizeof(m), 0);
+  char name[MESSAGE_LEN];
 
   pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
 
   photo.id=m.port;
-  printf("deleting photo\n" /*, m.port*/);
+  printf("deleting photo %d\n", photo.id);
+
   m.port=1;
   pthread_mutex_lock(&ph_list);
   (*photo_list)=deleteItemLinkedList((*photo_list), (Item) &photo, &m.port, &compare_id, &free_photo);
@@ -110,9 +113,35 @@ void server_delete_photo(int s_gw, LinkedList ** photo_list, int server_port){
 
   pthread_mutex_destroy(&ph_list);
 
+  status = remove(m.buffer);
+
+   if( status == 0 )
+      printf("%s file deleted successfully.\n",m.buffer);
+   else
+   {
+      printf("Unable to delete the file\n");
+      perror("Error");
+   }
+
   if(m.source==server_port){
     send(m.s_client, &m.port, sizeof(m.port), 0);
   }
+}
+
+photo_struct check_photo(LinkedList * photo_list, int id){
+  photo_struct ret_photo;
+  photo_struct *photo;
+
+  ret_photo.id=id;
+  photo=(photo_struct*) findItemLinkedList(photo_list, (Item) &ret_photo, &compare_id);
+
+  if(photo==NULL){
+    ret_photo.id=-1;
+    return ret_photo;
+  }
+
+  ret_photo=*photo;
+  return ret_photo;
 }
 
 void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){

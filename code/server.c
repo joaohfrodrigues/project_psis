@@ -63,7 +63,7 @@ void *sync_fnc(void *arg){
 
   while(1){
     recv(s_sync, &receive, sizeof(receive), 0);
-    usleep(5000);
+    usleep(500);
     sendto(s_sync, &alive, sizeof(alive), 0, (const struct sockaddr *) &gw_addr, sizeof(gw_addr));
   }
 }
@@ -122,6 +122,16 @@ void *handle_client(void *socket){
         recv(s_client, &m, sizeof(m), 0);
         m.source=sgw_addr.sin_port;
         m.s_client=s_client;
+        photo=check_photo(photo_list, m.port);
+        if(photo.id==-1){
+          m.port=0;
+          printf("id not found, please try again\n");
+          send(s_client, &m.port, sizeof(m.port), 0);
+          break;
+        }
+        sprintf(m.buffer,"%d",photo.id); /*converts to decimal base*/
+        strcat(m.buffer, photo.name);
+        printf("photo to delete: %s\n", m.buffer);
         send(s_gw, (const void *) &handle_client_type, (size_t) sizeof(handle_client_type), 0);
         send(s_gw, (const void *) &m, (size_t) sizeof(m), 0);
         break;

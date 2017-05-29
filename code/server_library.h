@@ -22,5 +22,6 @@ void server_search_photo(int , LinkedList * photo_list);
 void server_delete_photo(int s_gw, LinkedList ** photo_list, int server_port);
 void server_get_photo_name(int s_client, LinkedList * photo_list);
 void server_get_photo(int s_client, LinkedList * photo_list);
+photo_struct check_photo(LinkedList * photo_list, int id);
 
 #endif
