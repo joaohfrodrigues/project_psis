@@ -226,8 +226,8 @@ int main(int argc, char *argv[]){
   int i=0;
   int new_s;
 
-  strcpy(server_ip, argv[2]);
-  strcpy(gw_ip, argv[1]);
+  strcpy(server_ip, argv[1]);
+  strcpy(gw_ip, argv[2]);
 
   photo_list=initLinkedList();
 
@@ -245,7 +245,7 @@ int main(int argc, char *argv[]){
 
   sgw_addr.sin_family = AF_INET;
   sgw_addr.sin_port = htons(3001); /*numero de porto*/
-  inet_aton(argv[1], &sgw_addr.sin_addr);
+  inet_aton(argv[2], &sgw_addr.sin_addr);
 
   if(connect(s_gw, (struct sockaddr *) &sgw_addr, sizeof(sgw_addr))==-1){
     perror("connect ");
@@ -275,7 +275,7 @@ int main(int argc, char *argv[]){
 
   gateway_message.addr=server_addr;
   gateway_message.sgw_addr=sgw_addr;
-  inet_aton(argv[2], &gateway_message.addr.sin_addr);
+  inet_aton(argv[1], &gateway_message.addr.sin_addr);
   gateway_message.lives=3;
 
   error = pthread_create(&thrd_sync, NULL,sync_fnc, NULL);
