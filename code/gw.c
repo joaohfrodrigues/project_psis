@@ -7,24 +7,10 @@
 * Gateway process with 1 thread per server and 1 thread to communicate with the clients
 ****************************************************************************/
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <signal.h>
-#include <pthread.h>
-
 #include "gw_library.h"
 
 int s_gw, s_client, s_sync;
 LinkedList *server_list;
-//int n_servers=-1;
 int n_servers=0;
 
 void terminate_ok(int n){
@@ -55,12 +41,6 @@ void *thrd_server_fnc(void *socket){
 			case S_DELETE_PHOTO:
 				gw_delete_photo(s_server, &server_list);
 				break;
-			/*case S_SERVER_DEATH:
-				server_disconnecting(s_server, &server_list);
-				close(s_server);
-				n_servers--;
-				pthread_exit(NULL);
-				break;*/
 			case S_SEND_PHOTO:
 				gw_send_photo(s_server);
 				break;
@@ -127,14 +107,12 @@ void *machine_that_goes_ping(void *arg){
 			server=(server_struct*) getItemLinkedList(aux);
 			sendto(s_sync, &status, sizeof(status), 0,(struct sockaddr *) &(server->sync_addr), (socklen_t) sizeof(server->sync_addr));
 			usleep(500000);
-			//sleep(2);
 			if(recv(s_sync, &status, sizeof(status), MSG_DONTWAIT)>=0){
 				alive++;
 				server->lives=3;
 			}else{
 				server->lives--;
 			}
-			//printf("lives = %d\n", server->lives);
 			if(server->lives==0){
 				printf("disconnecting server with socket number %d\n", server->s_server);
 				server_list=deleteItemLinkedList(server_list, (Item) server, &ret_val, &compare_addr, &free_server);

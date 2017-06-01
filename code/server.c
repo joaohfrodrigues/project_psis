@@ -7,21 +7,6 @@
 * Server process, with 1 thread per client and 1 thread to communicate with the gateway
 ****************************************************************************/
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <signal.h>
-#include <pthread.h>
-
-//#include "image_server.h"
 #include "server_library.h"
 
 int s_gw, s_server, s_sync;
@@ -31,7 +16,6 @@ server_struct gateway_message;
 int n_clients=0;
 char server_ip[MESSAGE_LEN];
 char gw_ip[MESSAGE_LEN];
-//socklen_t gateway_addr_size;
 
 void *sync_fnc(void *arg){
   int reuse=1;
@@ -58,12 +42,11 @@ void *sync_fnc(void *arg){
 
   gw_addr.sin_family = AF_INET;
   gw_addr.sin_port = htons(3003);
-  //gw_addr.sin_addr.s_addr = INADDR_ANY;
   inet_aton(gw_ip, &gw_addr.sin_addr);
 
   while(1){
     recv(s_sync, &receive, sizeof(receive), 0);
-    usleep(500);
+    //usleep(500);
     sendto(s_sync, &alive, sizeof(alive), 0, (const struct sockaddr *) &gw_addr, sizeof(gw_addr));
   }
 }
@@ -75,18 +58,16 @@ void *handle_client(void *socket){
   message m;
   photo_struct photo;
   char c;
-  //(int *) (socket);
   int s_client=*(int *)(socket) ;
   int i=0;
   FILE *dest_file;
 
-  //n_clients++; /*SELECT THE CORRECT SOCKET AND INCREMENT THE NUMBER OF CLIENTS*/
+  /*SELECT THE CORRECT SOCKET AND INCREMENT THE NUMBER OF CLIENTS*/
   printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
   while(1){
     /*receive message*/
     int pp=recv(s_client, &type, sizeof(type), 0);
     if(pp<=0){
-        //n_clients--;
         printf("closing thread %lu\n", pthread_self());
         pthread_exit(NULL);
     }
@@ -214,9 +195,8 @@ void terminate_ok(int n){
   sendto(s_gw, (const void *) &(port), (size_t) sizeof(port), 0,(const struct sockaddr *) &sgw_addr, (socklen_t)sizeof(sgw_addr));
   close(s_gw);
   close(s_server);
-  //freeLinkedList(photo_list, &free_photo);
+  freeLinkedList(photo_list, &free_photo);
 	exit(-1);
-	//}
 }
 
 int main(int argc, char *argv[]){

@@ -34,7 +34,7 @@ int compare_id(Item foto1, Item foto2){
 /*COMPARES THE KEYWORDS OF PHOTO 1 WITH A SINGLE KEYWORD OF PHOTO 2*/
 int compare_keywords(Item foto1, Item foto2){
   for(int i=0; i<MAX_KEYWORDS; i++){
-    if(strcmp(((photo_struct *)foto1)->keyword[i],((photo_struct *)foto2)->keyword[0])==0)
+    if(strcmp("0",((photo_struct *)foto2)->keyword[0])==0 ||strcmp(((photo_struct *)foto1)->keyword[i],((photo_struct *)foto2)->keyword[0])==0)
       return 1;
   }
   return 0;
@@ -81,7 +81,6 @@ void server_add_photo(int s_gw, LinkedList ** photo_list, int server_port){
     send(photo.s_client, &photo, sizeof(photo), 0);
   }
 
-  //itoa(photo.id, name, 10);
   sprintf(name,"%d",photo.id); /*converts to decimal base*/
   strcat(name, photo.name);
   printf("photo_name in the database = %s\n", name);
@@ -183,7 +182,6 @@ void server_add_keyword(int s_gw, LinkedList * photo_list, int server_port){
         new_key->nkey++;
         m.port=1;
       }
-      //free(new_key);
     }
   printf("id=%d name=%s nkey=%d keyword=%s\n",new_key->id, new_key->name, new_key->nkey, new_key->keyword[new_key->nkey-1]);
   }
@@ -264,7 +262,6 @@ void server_search_photo(int s, LinkedList * photo_list){
   recv(s, &m, sizeof(m), 0);
   int count=0;
   int i=0;
-  uint32_t *photos_id = NULL;
 
   pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
 
@@ -280,18 +277,13 @@ void server_search_photo(int s, LinkedList * photo_list){
 
   send(s, &count, sizeof(count), 0);
 
-  if(count != 0)
-    photos_id = (uint32_t*) calloc(count, sizeof(uint32_t));
-
   if(vector==NULL){
     printf("nothing found for keyword %s\n", m.buffer);
   }else{
     for(i=0; i<count; i++){
       printf("photo_name=%s; photo_id=%d\n", vector[i]->name, vector[i]->id);
-      photos_id[i]= (uint32_t) vector[i]->id;
-      send(s, &(photos_id[i]), sizeof(photos_id[i]), 0);
+      send(s, (vector[i]), sizeof(*vector[i]), 0);
     }
     free(vector);
   }
-  free(photos_id);
 }

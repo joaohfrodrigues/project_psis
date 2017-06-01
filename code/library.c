@@ -6,27 +6,13 @@
 * library.c
 * Functions available for the client to use
 ****************************************************************************/
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <signal.h>
 
-#include "image_server.h"
 #include "library.h"
 
 int gallery_connect(char * host, in_port_t port){
   int s, s_dgram;
   message m, gateway_message;
-  struct sockaddr_in server_addr, client_addr, gateway_addr;
-  socklen_t server_addr_size, client_addr_size, gateway_addr_size;
-
+  struct sockaddr_in server_addr, gateway_addr;
   s_dgram= socket(AF_INET,SOCK_DGRAM,0);
   if(s_dgram == -1)
   {
@@ -35,16 +21,12 @@ int gallery_connect(char * host, in_port_t port){
   }
 
   gateway_addr.sin_family = AF_INET;
-  gateway_addr.sin_port = htons(port); /*numero de porto*/
+  gateway_addr.sin_port = htons(port);
   inet_aton(host, &gateway_addr.sin_addr);
-  gateway_addr_size= sizeof(gateway_addr);
 
   gateway_message.type=CLIENT_GW;
-  gateway_message.port=client_addr.sin_port;
   strcpy(gateway_message.buffer, inet_ntoa(gateway_addr.sin_addr));
-  /*ask gateway for server to connect*/
   sendto(s_dgram, (const void *) &gateway_message, (size_t) sizeof(gateway_message), 0,(const struct sockaddr *) &gateway_addr, (socklen_t) sizeof(gateway_addr));
-  /*receive answer from gateway*/
   recv(s_dgram, &m, sizeof(m), 0);
 
   if(m.port==0){
@@ -54,16 +36,15 @@ int gallery_connect(char * host, in_port_t port){
   printf("server_ip: %s\n", m.buffer);
   printf("server_port:%d\n", m.port);
 
-  /*create socket with server*/
   s= socket(AF_INET,SOCK_STREAM,0);
   if(s == -1)
   {
     perror("Socket not created.Error:");
-    return 1;
+    return -1;
   }
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = m.port; /*numero de porto*/
-  inet_aton(m.buffer, &server_addr.sin_addr); /*IP*/ /*fazer inet_ntoa na gateway do server e guardar no buffer!*/
+  server_addr.sin_port = m.port;
+  inet_aton(m.buffer, &server_addr.sin_addr);
 
   if(connect(s, (struct sockaddr *) &server_addr, sizeof(server_addr))==-1){
     perror("connect ");
@@ -75,7 +56,6 @@ int gallery_connect(char * host, in_port_t port){
 uint32_t gallery_add_photo(int peer_socket, char *file_name){
   photo_struct photo;
   int type=ADD_PHOTO;
-  ssize_t len;
   FILE *photo_file;
   strcpy(photo.name, file_name);
   photo.id=0;
@@ -95,7 +75,6 @@ uint32_t gallery_add_photo(int peer_socket, char *file_name){
     fclose(photo_file);
     return 0;
   }else{
-    //GET FILE STATS
     if (fstat(fd, &file_stat) < 0){
       fprintf(stderr, "Error fstat --> %s", strerror(errno));
        exit(EXIT_FAILURE);
@@ -238,18 +217,25 @@ int gallery_search_photo(int peer_socket, char * keyword, uint32_t ** id_photos)
   strcpy(m.buffer, keyword);
   int n_photos=0;
   uint32_t id;
+  int i=0;
+  photo_struct photo;
 
   send(peer_socket, &type, sizeof(type), 0);
-  // SENDS KEYWORD TO SEARCH AND RECEIVES NUMBER OF PHOTOS AND THE VECTOR
   send(peer_socket, &m, sizeof(m), 0);
   recv(peer_socket, &n_photos, sizeof(n_photos), 0);
   (*id_photos) = (uint32_t*) calloc(n_photos, sizeof(uint32_t));
-  printf("found %d matches for keyword %s\n", n_photos, keyword);
-  for(int i=0; i<n_photos; i++){
-    recv(peer_socket, &(id), sizeof(id), 0);
-    (*id_photos)[i]=id;
-    printf("photo_id=%d\n", (*id_photos)[i]);
+
+  if(strcmp("0",keyword)!=0)
+    printf("Found %d matches for keyword %s\n", n_photos, keyword);
+  else
+    printf("There are %d photos in the repository:\n", n_photos);
+
+  for(i=0; i<n_photos; i++){
+    recv(peer_socket, &(photo), sizeof(photo), 0);
+    (*id_photos)[i]=photo.id;
+    printf("photo_id=%d\tphoto_name=%s\n", (*id_photos)[i], photo.name);
   }
+
   return n_photos;
 }
 
@@ -259,4 +245,5 @@ int gallery_disconnect(int peer_socket){
 
   send(peer_socket, &type, sizeof(type), 0);
   send(peer_socket, &m, sizeof(m), 0);
+  return 0;
 }

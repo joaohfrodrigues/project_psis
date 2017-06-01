@@ -36,6 +36,21 @@
 
 #include <sys/socket.h>
 #include <stdint.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/un.h>
+#include <arpa/inet.h>
+#include <signal.h>
+#include <pthread.h>
+#include <netinet/in.h>
+#include <time.h>
+
 
 typedef struct message{
     int type;
@@ -46,7 +61,6 @@ typedef struct message{
 } message;
 
 typedef struct server_struct{
-    //int health;
     struct sockaddr_in addr;
     struct sockaddr_in sgw_addr;
     struct sockaddr_in sync_addr;
@@ -64,9 +78,3 @@ typedef struct photo_struct{
     int s_client;
     int size;
 } photo_struct;
-
-/*void error(const char *msg)
-{
-    perror(msg);
-    exit(1);
-}*/

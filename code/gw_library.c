@@ -6,20 +6,6 @@
 * gw_library.c
 * Functions available for the gateway to use
 ****************************************************************************/
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <signal.h>
-#include <time.h>
-#include <pthread.h>
-
 
 #include "gw_library.h"
 
@@ -84,18 +70,15 @@ void server_connecting(int s, LinkedList **server_list){
 	struct sockaddr_in server_addr;
 	socklen_t server_addr_size;
   server_struct *new_server=(server_struct *) malloc(sizeof(server_struct));
-	/*RECEBE O ENDEREÇO DO NOVO SERVIDOR*/
+	/*RECEIVES THE ADRESS OF THE NEW SERVER*/
   recvfrom(s, new_server, sizeof(*new_server), 0,(struct sockaddr *) &server_addr, &server_addr_size);
 	server_struct *aux_server;
 	int type;
-  //new_server->addr.sin_addr = server_addr.sin_addr;
 	char test[MESSAGE_LEN];
 	char test2[MESSAGE_LEN];
 
 	new_server->s_server=s;
-	//new_server->addr.sin_addr=server_addr.sin_addr;
 	strcpy(test, inet_ntoa(new_server->addr.sin_addr));
-	//inet_aton(test, &new_server->addr.sin_addr);
 	printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
 
 	pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
@@ -142,7 +125,7 @@ void gw_send_photo(int s){
 void server_disconnecting(int s, LinkedList **server_list){
 	photo_struct photo;
 	int port, ret_value=0;
-	/*RECEBE O ENDEREÇO DO NOVO SERVIDOR*/
+
   recv(s, &port, sizeof(port), 0);
 	server_struct server;
 	server.addr.sin_port=port;
@@ -171,15 +154,12 @@ void gw_add_photo(int s, LinkedList **server_list){
   server_struct aux_server;
 	server_struct *aux2_server;
   recv(s, &photo, sizeof(photo), 0);
-	//printf("src_port=%d\n", photo.source);
 	photo.id=id;
 	photo.nkey=0;
 
 	pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
 
 	char *file=(char *)malloc(photo.size*sizeof(char));
-	printf("file has size of %d\n", photo.size);
-	//char file[photo.size];
 
 	aux_server.sgw_addr.sin_port=photo.source;
 
@@ -214,7 +194,6 @@ void gw_add_keyword(int s, LinkedList **server_list){
   pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
 
   recv(s, &m, sizeof(m), 0);
-	//printf("src_port=%d\n", m.source);
 
   pthread_mutex_lock(&s_list);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
@@ -235,7 +214,6 @@ void gw_delete_photo(int s, LinkedList **server_list){
   pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
 
   recv(s, &m, sizeof(m), 0);
-	//printf("src_port=%d\n", m.source);
 
   pthread_mutex_lock(&s_list);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
