@@ -62,6 +62,8 @@ void *handle_client(void *socket){
   int i=0;
   FILE *dest_file;
 
+  pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
+
   /*SELECT THE CORRECT SOCKET AND INCREMENT THE NUMBER OF CLIENTS*/
   printf("New thread ID %d %lu\n",getpid(), pthread_self()) ;
   while(1){
@@ -93,17 +95,23 @@ void *handle_client(void *socket){
         send(s_gw, (const void *) &m, (size_t) sizeof(m), 0);
         break;
       case SEARCH_PHOTO:
+        pthread_mutex_lock(&ph_list);
         server_search_photo(s_client, photo_list);
+        pthread_mutex_unlock(&ph_list);
         break;
       case GET_PHOTO:
+        pthread_mutex_lock(&ph_list);
         server_get_photo(s_client, photo_list);
+        pthread_mutex_unlock(&ph_list);
         break;
       case DELETE_PHOTO:
         handle_client_type=S_DELETE_PHOTO;
         recv(s_client, &m, sizeof(m), 0);
         m.source=sgw_addr.sin_port;
         m.s_client=s_client;
+        pthread_mutex_lock(&ph_list);
         photo=check_photo(photo_list, m.port);
+        pthread_mutex_unlock(&ph_list);
         if(photo.id==-1){
           m.port=0;
           printf("id not found, please try again\n");
@@ -117,12 +125,15 @@ void *handle_client(void *socket){
         send(s_gw, (const void *) &m, (size_t) sizeof(m), 0);
         break;
       case GET_PHOTO_NAME:
+        pthread_mutex_lock(&ph_list);
         server_get_photo_name(s_client, photo_list);
+        pthread_mutex_unlock(&ph_list);
         break;
       case CLIENT_DEATH:
         n_clients--;
         printf("closing thread %lu\n", pthread_self());
         close(s_client);
+        pthread_mutex_destroy(&ph_list);
         pthread_exit(NULL);
         break;
       default:
@@ -145,6 +156,8 @@ void *gw_connection(void *arg){
   int i=0;
   int dest_s=0;
 
+  pthread_mutex_t ph_list = PTHREAD_MUTEX_INITIALIZER;
+
   strcpy(test, inet_ntoa(gateway_message.addr.sin_addr));
   send(s_gw, (const void *) &gw_m_type, (size_t) sizeof(gw_m_type), 0);
   send(s_gw, (const void *) &(gateway_message), (size_t) sizeof(gateway_message), 0);
@@ -155,13 +168,18 @@ void *gw_connection(void *arg){
     recv(s_gw, &gw_connection_type, sizeof(gw_connection_type), 0);
     switch(gw_connection_type){
       case ADD_PHOTO:
+        pthread_mutex_lock(&ph_list);
         server_add_photo(s_gw, &photo_list, sgw_addr.sin_port);
+        pthread_mutex_unlock(&ph_list);
         break;
       case ADD_KEYWORD:
+        pthread_mutex_lock(&ph_list);
         server_add_keyword(s_gw, photo_list, sgw_addr.sin_port);
+        pthread_mutex_unlock(&ph_list);
         break;
       case SYNC_PHOTO_LIST:
         recv(s_gw, &dest_s, sizeof(dest_s), 0);
+        pthread_mutex_lock(&ph_list);
         for(aux=photo_list; aux!=NULL; aux=getNextNodeLinkedList(aux)){
           gw_connection_type=S_SEND_PHOTO;
           photo= (photo_struct *) getItemLinkedList(aux);
@@ -177,14 +195,18 @@ void *gw_connection(void *arg){
           }
           fclose(server_file);
         }
+        pthread_mutex_unlock(&ph_list);
         break;
       case DELETE_PHOTO:
+        pthread_mutex_lock(&ph_list);
         server_delete_photo(s_gw, &photo_list, sgw_addr.sin_port);
+        pthread_mutex_unlock(&ph_list);
         break;
       default:
         break;
     }
   }
+  pthread_mutex_destroy(&ph_list);
 }
 
 /*HANDLING SIGNALS*/
