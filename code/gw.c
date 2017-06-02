@@ -26,20 +26,30 @@ void *thrd_server_fnc(void *socket){
 	int type=0;
 	int s_server=*(int *)(socket);
 
+	pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
+
   while(1){
     recv(s_server, &type, sizeof(type), 0);
 		switch(type){
 			case S_CONNECT:
+				pthread_mutex_lock(&s_list);
 				server_connecting(s_server, &server_list);
+				pthread_mutex_unlock(&s_list);
 				break;
 			case S_ADD_PHOTO:
+				pthread_mutex_lock(&s_list);
 				gw_add_photo(s_server, &server_list);
+				pthread_mutex_unlock(&s_list);
 				break;
 			case S_ADD_KEYWORD:
+				pthread_mutex_lock(&s_list);
 				gw_add_keyword(s_server, &server_list);
+				pthread_mutex_unlock(&s_list);
 				break;
 			case S_DELETE_PHOTO:
+				pthread_mutex_lock(&s_list);
 				gw_delete_photo(s_server, &server_list);
+				pthread_mutex_unlock(&s_list);
 				break;
 			case S_SEND_PHOTO:
 				gw_send_photo(s_server);
@@ -48,7 +58,10 @@ void *thrd_server_fnc(void *socket){
 				break;
 		}
   }
+
+  pthread_mutex_destroy(&s_list);
 }
+
 /*THIS THREAD HANDLES THE CLIENTS*/
 void *thrd_client_fnc(void *arg){
   struct sockaddr_in gw_addr, client_addr;
@@ -72,9 +85,14 @@ void *thrd_client_fnc(void *arg){
 
   printf("s_client: Bind completed\n");
 
+  pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
+
   while(1){
+  	pthread_mutex_lock(&s_list);
     client_connecting(s_client, &server_list, &aux);
+    pthread_mutex_unlock(&s_list);
   }
+  pthread_mutex_destroy(&s_list);
 }
 
 

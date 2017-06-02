@@ -37,11 +37,9 @@ void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
   socklen_t client_addr_size;
   message m_client;
 
-  pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
 
   recvfrom(s, &m_client, sizeof(m_client), 0,(struct sockaddr *) &client_addr, &client_addr_size);
 
-  pthread_mutex_lock(&s_list);
   if((*aux)==NULL || getNextNodeLinkedList(*aux)==NULL){
     (*aux)=(*server_list);
   }else{
@@ -49,9 +47,6 @@ void client_connecting(int s, LinkedList **server_list, LinkedList **aux){
   }
 
   server_struct* client_server=(server_struct*) getItemLinkedList(*aux);
-  pthread_mutex_unlock(&s_list);
-
-  pthread_mutex_destroy(&s_list);
 
 	if(client_server==NULL){
 		m_client.port=0;
@@ -81,10 +76,6 @@ void server_connecting(int s, LinkedList **server_list){
 	strcpy(test, inet_ntoa(new_server->addr.sin_addr));
 	printf("server connecting server_port=%d, server ip=%s\n", new_server->addr.sin_port, test);
 
-	pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
-
-
-  	pthread_mutex_lock(&s_list);
 
 /*WHEN SERVER_LIST IS NOT NULL, THERE IS ANOTHER SERVER, THEREFORE THE NEED TO REPLICATE THE LINKED LIST*/
 	if((*server_list)!=NULL){
@@ -96,8 +87,6 @@ void server_connecting(int s, LinkedList **server_list){
 
   	(*server_list)=insertUnsortedLinkedList((*server_list), (Item) new_server);
 
-  	pthread_mutex_unlock(&s_list);
-  	pthread_mutex_destroy(&s_list);
 }
 
 void gw_send_photo(int s){
@@ -130,14 +119,7 @@ void server_disconnecting(int s, LinkedList **server_list){
 	server_struct server;
 	server.addr.sin_port=port;
 
-	pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
-
-  	pthread_mutex_lock(&s_list);
-
 	(*server_list)= deleteItemLinkedList((*server_list), (Item) &server, &ret_value, &compare_addr, &free_server);
-
-	pthread_mutex_unlock(&s_list);
-  	pthread_mutex_destroy(&s_list);
 
 	printf("deleted server with port %d\n", server.addr.sin_port);
 }
@@ -157,22 +139,17 @@ void gw_add_photo(int s, LinkedList **server_list){
 	photo.id=id;
 	photo.nkey=0;
 
-	pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
-
 	char *file=(char *)malloc(photo.size*sizeof(char));
 
 	aux_server.sgw_addr.sin_port=photo.source;
 
-	pthread_mutex_lock(&s_list);
 	aux2_server= (server_struct*) findItemLinkedList(*server_list,(Item) &aux_server, &compare_sgw_addr);
-	pthread_mutex_unlock(&s_list);
 
 	for(i=0; i< photo.size; i++){
 		recv(s, &c, sizeof(c), 0);
 		file[i]=c;
 	}
 
-	pthread_mutex_lock(&s_list);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
     send(server->s_server, (const void *) &type, (size_t) sizeof(type), 0);
@@ -180,8 +157,6 @@ void gw_add_photo(int s, LinkedList **server_list){
 		for(i=0; i< photo.size; i++)
 			send(server->s_server, (const void *) &file[i], (size_t) sizeof(file[i]), 0);
   }
-  	pthread_mutex_unlock(&s_list);
-	pthread_mutex_destroy(&s_list);
 
 }
 
@@ -191,18 +166,13 @@ void gw_add_keyword(int s, LinkedList **server_list){
   int type=ADD_KEYWORD;
   server_struct *server;
 
-  pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
-
   recv(s, &m, sizeof(m), 0);
 
-  pthread_mutex_lock(&s_list);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
     send(server->s_server, (const void *) &type, (size_t) sizeof(type), 0);
     send(server->s_server, (const void *) &m, (size_t) sizeof(m), 0);
   }
-  pthread_mutex_unlock(&s_list);
-  pthread_mutex_destroy(&s_list);
 }
 
 void gw_delete_photo(int s, LinkedList **server_list){
@@ -211,18 +181,13 @@ void gw_delete_photo(int s, LinkedList **server_list){
   int type=DELETE_PHOTO;
   server_struct *server;
 
-  pthread_mutex_t s_list = PTHREAD_MUTEX_INITIALIZER;
-
   recv(s, &m, sizeof(m), 0);
 
-  pthread_mutex_lock(&s_list);
   for(aux=(*server_list) ; aux!=NULL ; aux=getNextNodeLinkedList(aux)){
 		server= (server_struct*) getItemLinkedList(aux);
     send(server->s_server, (const void *) &type, (size_t) sizeof(type), 0);
     send(server->s_server, (const void *) &m, (size_t) sizeof(m), 0);
   }
-  pthread_mutex_unlock(&s_list);
-  pthread_mutex_destroy(&s_list);
 
 	count_photos--;
 }
