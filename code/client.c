@@ -89,8 +89,9 @@ int main(int argc, char *argv[]){
 			case 5: /*GET PHOTO NAME*/
 	      printf("\nYou chose to get a photo name!\nPlease insert the id of the photo to be searched: ");
 				scanf("%d", &id);
-				gallery_get_photo_name(peer_socket, id, &name);
-				printf("Filename found: %s\n", name);
+				ret_val=gallery_get_photo_name(peer_socket, id, &name);
+				if(ret_val!=0)
+					printf("Filename found: %s\n", name);
 	      break;
 			case 6: /*GET PHOTO*/
 		    printf("\nYou chose to get (download) a photo!\nPlease insert the id of the photo to be downloaded: ");
