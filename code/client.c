@@ -26,6 +26,7 @@ int main(int argc, char *argv[]){
 	uint32_t *id_photos=NULL;
 	uint32_t ret_val=0;
 
+	pthread_mutex_t ph;
 
 	printf("******WELCOME TO THE PROPZ IMAGE REPOSITORY******\n");
 	printf("connecting to server...\n");
@@ -60,7 +61,9 @@ int main(int argc, char *argv[]){
       case 1: /*ADD_PHOTO*/
         printf("\nYou chose to add a photo!\nPlease insert the file_name of your photo: " );
 				scanf("%s", buffer);
+				pthread_mutex_lock(&ph);
 				ret_val = gallery_add_photo(peer_socket, buffer);
+				pthread_mutex_unlock(&ph);
 				if(ret_val > 0)
 					printf("Your photo was added successfully. The id is %d\n", ret_val);
 				else if(ret_val == 0)
@@ -106,6 +109,7 @@ int main(int argc, char *argv[]){
     }
 	}
 
+	pthread_mutex_destroy(&ph);
   gallery_disconnect(peer_socket);
   exit(0);
 }
