@@ -142,7 +142,6 @@ int gallery_get_photo_name(int peer_socket, uint32_t id_photo, char **photo_name
     return 0;
   }
   (*photo_name)=(char *) malloc(strlen(m.buffer));
-  printf("got %s\n", m.buffer);
   strcpy((*photo_name), m.buffer);
 
   return m.port;
